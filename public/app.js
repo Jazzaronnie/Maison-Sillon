@@ -222,8 +222,11 @@ function setup() {
   document.querySelector("#admin-logout").onclick = async () => { await fetch("/api/admin/logout", { method:"POST" }); state.admin = false; document.querySelector("#admin-tools").hidden = true; renderFeatured(); renderCatalogue(); };
   document.querySelector("#editor-form").addEventListener("submit", saveEditor);
   window.addEventListener("scroll", () => {
-    const progress = Math.min(window.scrollY / Math.max(1, window.innerHeight), 1);
-    document.querySelector("#room").style.transform = `scale(${1 + progress * .06}) translateY(${progress * -1.5}%)`;
+    const journey = Math.min(window.scrollY / Math.max(1, window.innerHeight * 1.3), 1);
+    const room = document.querySelector("#room");
+    // A low-cost camera move: we travel inward while the sticky room stays fixed.
+    room.style.setProperty("--camera", String(1 + journey * .13));
+    room.style.backgroundPosition = `center ${50 - journey * 8}%`;
     document.querySelector(".topbar").classList.toggle("scrolled", window.scrollY > 50);
   }, { passive:true });
   updateAdminSession().then(() => { if (state.admin) document.querySelector("#admin-tools").hidden = false; loadInventory(); });
