@@ -255,9 +255,13 @@ function setup() {
   window.addEventListener("scroll", () => {
     const journey = Math.min(window.scrollY / Math.max(1, window.innerHeight * 1.3), 1);
     const room = document.querySelector("#room");
-    // A low-cost camera move: we travel inward while the sticky room stays fixed.
-    room.style.setProperty("--camera", String(1 + journey * .13));
-    room.style.backgroundPosition = `center ${50 - journey * 8}%`;
+    // A deliberately visible, mobile-friendly camera journey through the room.
+    // The scene advances inward and drifts slightly toward the active shelves.
+    const zoom = 1 + journey * .42;
+    const x = Math.sin(journey * Math.PI) * -3;
+    const y = journey * -12;
+    room.style.transform = `scale(${zoom}) translate3d(${x}%, ${y}%, 0)`;
+    room.style.backgroundPosition = `${50 + x}% ${50 + y}%`;
     setRoomStep(Math.min(2, Math.floor(journey * 3)));
     document.querySelector(".topbar").classList.toggle("scrolled", window.scrollY > 50);
   }, { passive:true });
