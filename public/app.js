@@ -122,6 +122,7 @@ function setRoomStep(step) {
   const records = document.querySelectorAll(".room-record");
   if (!records.length || step === state.roomStep) return;
   state.roomStep = step;
+  document.querySelector("#room").dataset.scene = String(step);
   records.forEach((record, index) => record.classList.toggle("is-active", index === step % records.length));
   const releases = selectedRoomReleases();
   const label = document.querySelector("#room-shelf-label");
@@ -261,10 +262,6 @@ function setup() {
     // The camera is painted inside the fixed viewport; never transform the sticky
     // room container itself, which would expose a blank area below it on mobile.
     room.style.transform = "none";
-    room.style.setProperty("--camera-zoom", String(1 + journey * .28));
-    // Three stops: left shelves → centre listening area → right shelves.
-    room.style.setProperty("--camera-x", `${42 + journey * 16}%`);
-    room.style.setProperty("--camera-y", `${50 - journey * 12}%`);
     setRoomStep(Math.min(2, Math.floor(journey * 3)));
     document.querySelector(".topbar").classList.toggle("scrolled", window.scrollY > 50);
   }, { passive:true });

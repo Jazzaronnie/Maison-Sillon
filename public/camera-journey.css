@@ -1,8 +1,13 @@
-/* The image layer moves inside the sticky viewport. This prevents the black
-   gap caused by transforming the sticky element itself. */
-.room::before{content:"";position:absolute;inset:0;z-index:0;background-image:linear-gradient(90deg,#09050355,#0000 42%,#09050333),url("/assets/maison-sillon-room-wide-v1.png");background-size:cover;background-position:var(--camera-x,50%) var(--camera-y,50%);transform:scale(var(--camera-zoom,1));transform-origin:center;will-change:transform,background-position;transition:background-position .08s linear}
+/* A three-view camera path stays inside the sticky viewport, so no blank page
+   is exposed while the visitor scrolls. */
+.room::before{content:none!important}
+.room-scene{display:block!important;position:absolute;inset:0;z-index:0;opacity:0;background-size:cover;background-position:center;transition:opacity .72s ease;will-change:opacity}
+.scene-centre{background-image:linear-gradient(90deg,#09050355,#0000 42%,#09050333),url("/assets/maison-sillon-room-wide-v1.png")}
+.scene-left{background-image:linear-gradient(90deg,#12080480,#0000 55%),url("/assets/maison-sillon-room-left-v1.png")}
+.scene-right{background-image:linear-gradient(90deg,#0000 45%,#12080480),url("/assets/maison-sillon-room-right-v1.png")}
+.room[data-scene="0"] .scene-centre,.room[data-scene="1"] .scene-left,.room[data-scene="2"] .scene-right{opacity:1}
 .room::after{z-index:1}
 .room .room-showcase{z-index:3}
 .room-shelf-label{display:inline-block;margin:0 0 14px;padding:7px 13px;border:1px solid #d9ad6f;background:#2b170ddd;color:#f8e0b8;box-shadow:0 6px 20px #100602;font:700 10px/1 system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase}
-@media(max-width:780px){.room::before{background-image:linear-gradient(90deg,#120804a6 0%,#12080435 75%),linear-gradient(0deg,#10060492 0%,transparent 45%),url("/assets/maison-sillon-room-v1.png")}}
-@media(prefers-reduced-motion:reduce){.room::before{transform:none!important;transition:none!important}}
+@media(max-width:780px){.scene-centre{background-image:linear-gradient(90deg,#120804a6 0%,#12080435 75%),linear-gradient(0deg,#10060492 0%,transparent 45%),url("/assets/maison-sillon-room-v1.png")}.room-scene{background-position:center center}}
+@media(prefers-reduced-motion:reduce){.room-scene{transition:none!important}}
