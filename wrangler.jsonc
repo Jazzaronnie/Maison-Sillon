@@ -7,8 +7,8 @@
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "REPLACE_WITH_YOUR_D1_NAME",
-      "database_id": "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+      "database_name": "maison_sillon",
+      "database_id": "0efd51d0-e4d1-46a8-8219-ff915cdcca14"
     }
   ]
 }
