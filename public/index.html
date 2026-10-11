@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#160e0a">
+  <title>Maison Sillon — CD & Vinyl Collection</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#entrance" aria-label="Maison Sillon">Maison <em>Sillon</em></a>
+    <nav>
+      <button class="text-button" id="language" aria-label="Changer de langue">FR / EN</button>
+      <button class="bag-button" id="open-cart" aria-label="Ouvrir le panier">Panier <span id="cart-count">0</span></button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="entrance" id="entrance">
+      <div class="room" id="room" aria-hidden="true">
+        <div class="ceiling"></div><div class="floor"></div><div class="wall back-wall"></div>
+        <div class="shelf left-shelf"></div><div class="shelf right-shelf"></div>
+        <div class="pedestal"><span>MAISON SILLON</span></div>
+      </div>
+      <div class="entrance-copy">
+        <p class="eyebrow" data-i18n="eyebrow">COLLECTION MONTRÉALAISE</p>
+        <h1 data-i18n="heroTitle">Une collection choisie,<br>à écouter autrement.</h1>
+        <p data-i18n="heroBody">Faites défiler pour parcourir la salle. Découvrez les pièces sélectionnées, puis explorez le catalogue complet.</p>
+        <a class="primary" href="#catalogue" data-i18n="browse">Explorer le catalogue</a>
+      </div>
+      <div class="scroll-note" data-i18n="scroll">Défiler pour entrer</div>
+    </section>
+
+    <section class="featured" id="featured">
+      <div class="section-heading"><p class="eyebrow" data-i18n="featuredEyebrow">PIÈCES EN VEDETTE</p><h2 data-i18n="featuredTitle">Sur les étagères</h2></div>
+      <p class="section-intro" data-i18n="featuredBody">Albums sélectionnés selon leur prix, leur disponibilité et leur intérêt Discogs. Touchez une pochette pour l’examiner.</p>
+      <div class="featured-grid" id="featured-grid"></div>
+    </section>
+
+    <section class="catalogue" id="catalogue">
+      <div class="catalogue-title"><p class="eyebrow" data-i18n="catalogueEyebrow">INVENTAIRE COMPLET</p><h2 data-i18n="catalogueTitle">Le catalogue</h2><p id="catalogue-count"></p></div>
+      <div class="catalogue-layout">
+        <aside class="filters" aria-label="Filtres">
+          <label><span data-i18n="search">Rechercher</span><input id="search" type="search" data-i18n-placeholder="searchPlaceholder" placeholder="Artiste ou titre"></label>
+          <label><span data-i18n="category">Catégorie</span><select id="category-filter"><option value="" data-i18n="all">Toutes</option></select></label>
+          <label><span data-i18n="condition">État du média</span><select id="condition-filter"><option value="" data-i18n="all">Toutes</option></select></label>
+          <label><span data-i18n="price">Prix maximum</span><input id="price-filter" type="range" min="0" max="100" value="100"><output id="price-output">100 $</output></label>
+          <button class="text-button admin-launch" id="admin-launch" data-i18n="admin">Administration</button>
+        </aside>
+        <div><div class="catalogue-grid" id="catalogue-grid" aria-live="polite"></div><button class="more-button" id="show-more" hidden>Afficher plus</button></div>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="record-dialog" class="record-dialog"><button class="close" data-close="record-dialog" aria-label="Fermer">×</button><div id="record-content"></div></dialog>
+  <dialog id="cart-dialog" class="cart-dialog"><button class="close" data-close="cart-dialog" aria-label="Fermer">×</button><h2 data-i18n="cartTitle">Votre panier</h2><div id="cart-items"></div><div class="delivery"><h3 data-i18n="fulfillment">Livraison et cueillette</h3><label><input type="radio" name="delivery" value="pickup" checked><span data-i18n="pickup">Cueillette gratuite à Montréal</span></label><label><input type="radio" name="delivery" value="shipping"><span data-i18n="shipping">Livraison postale</span></label><label id="neighbourhood-row" hidden><span data-i18n="neighbourhood">Quartier et code postal</span><input id="neighbourhood" placeholder="Ex. Villeray, H2R 1A1"></label><p id="shipping-note"></p></div><div class="total"><span data-i18n="total">Total estimé</span><strong id="cart-total">0,00 $</strong></div><button class="primary full" id="copy-order" data-i18n="copyOrder">Copier la demande pour Messenger</button></dialog>
+  <dialog id="admin-dialog" class="admin-dialog"><button class="close" data-close="admin-dialog" aria-label="Fermer">×</button><h2 data-i18n="adminTitle">Administration Maison Sillon</h2><p data-i18n="adminBody">Entrez votre mot de passe pour modifier les prix, quantités, images et disponibilités.</p><label><span data-i18n="password">Mot de passe</span><input id="admin-password" type="password" autocomplete="current-password"></label><button class="primary full" id="admin-login" data-i18n="signIn">Ouvrir la session</button><p id="admin-status" role="status"></p><div id="admin-tools" hidden><hr><button class="primary full" id="admin-add" data-i18n="addListing">Ajouter un album</button><button class="text-button logout" id="admin-logout" data-i18n="signOut">Fermer la session</button></div></dialog>
+  <dialog id="editor-dialog" class="editor-dialog"><button class="close" data-close="editor-dialog" aria-label="Fermer">×</button><h2 id="editor-heading">Modifier l’album</h2><form id="editor-form"><div class="editor-grid"><label>Artiste<input name="artist" required></label><label>Titre<input name="title" required></label><label><span data-i18n="releaseId">ID Discogs</span><input name="release_id"></label><label><span data-i18n="price">Prix maximum</span><input name="price_cad" type="number" min="0" step="0.01" required></label><label><span data-i18n="quantity">Quantité</span><input name="quantity" type="number" min="0" step="1" required></label><label><span data-i18n="available">Disponible</span><select name="status"><option value="available">Disponible / Available</option><option value="sold">Vendu / Sold</option></select></label><label><span data-i18n="category">Catégorie</span><input name="category"></label><label><span data-i18n="format">Format</span><input name="format"></label><label><span data-i18n="label">Étiquette</span><input name="label_name"></label><label><span data-i18n="year">Année</span><input name="release_year" type="number" min="1900" max="2100"></label><label><span data-i18n="media">État média</span><input name="media_condition"></label><label><span data-i18n="sleeve">Pochette</span><input name="sleeve_condition"></label><label class="wide"><span data-i18n="imageUrl">URL de l’image HD</span><input name="custom_image_url" type="url" placeholder="https://"></label><label class="wide"><span data-i18n="notes">Notes</span><textarea name="notes" rows="3"></textarea></label></div><p id="editor-status" role="status"></p><button class="primary full" type="submit" data-i18n="save">Enregistrer</button></form></dialog>
+  <footer><p data-i18n="discogsNotice">Les images et données Discogs sont utilisées conformément à leurs conditions d’utilisation. Discogs n’est ni affilié à Maison Sillon ni responsable de ce catalogue.</p></footer>
+  <template id="card-template"><article class="album-card"><button class="cover-button"><img loading="lazy" alt=""><span class="sold" data-i18n="sold">VENDU</span></button><div class="album-copy"><h3></h3><p class="artist"></p><p class="card-price"></p><button class="add" data-i18n="add">Ajouter</button><button class="admin-edit" hidden data-i18n="edit">Modifier</button></div></article></template>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

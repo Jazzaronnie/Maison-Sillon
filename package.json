@@ -1,0 +1,16 @@
+{
+  "name": "maison-sillon",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "import:inventory": "node scripts/import-inventory.mjs",
+    "enrich:discogs": "node scripts/enrich-discogs.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0",
+    "xlsx": "^0.18.5"
+  }
+}
