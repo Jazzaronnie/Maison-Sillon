@@ -3,7 +3,8 @@ const state = {
   inventory: [],
   cart: JSON.parse(localStorage.getItem("maison-cart") || "[]"),
   admin: false,
-  visibleCount: 80
+  visibleCount: 80,
+  priceLimitInitialized: false
 };
 
 const copy = {
@@ -101,6 +102,10 @@ function renderFilters() {
   };
   fill("#category-filter", [...new Set(state.inventory.map(release => release.category))].filter(Boolean).sort());
   fill("#condition-filter", [...new Set(state.inventory.map(release => release.media_condition))].filter(Boolean).sort());
+  const priceInput = document.querySelector("#price-filter");
+  const highestPrice = Math.ceil(Math.max(1, ...state.inventory.map(release => Number(release.price_cad) || 0)));
+  priceInput.max = highestPrice;
+  if (!state.priceLimitInitialized) { priceInput.value = highestPrice; state.priceLimitInitialized = true; }
 }
 
 function filteredInventory() {
