@@ -4,7 +4,8 @@ const state = {
   cart: JSON.parse(localStorage.getItem("maison-cart") || "[]"),
   admin: false,
   visibleCount: 80,
-  priceLimitInitialized: false
+  priceLimitInitialized: false,
+  roomStep: -1
 };
 
 const copy = {
@@ -17,7 +18,7 @@ const copy = {
     password:"Mot de passe", signIn:"Ouvrir la session", signOut:"Fermer la session", turn:"Voir le verso", media:"État média", sleeve:"Pochette", label:"Étiquette", format:"Format", year:"Année", available:"Disponible", unavailable:"Vendu",
     copied:"Copié — collez-le dans Messenger !", shippingSmall:"10 $ pour 1–2 CD; 20 $ pour 3 CD ou plus.", items:"albums affichés", showMore:"Afficher plus", edit:"Modifier", addListing:"Ajouter un album", save:"Enregistrer", cancel:"Annuler",
     editorTitle:"Modifier l’album", newTitle:"Ajouter un album", quantity:"Quantité", imageUrl:"URL de l’image HD", notes:"Notes", releaseId:"ID Discogs", saved:"Modifications enregistrées.", loginError:"Mot de passe incorrect.", adminOpen:"Session administrateur ouverte.",
-    discogsNotice:"Les images et données Discogs sont utilisées conformément à leurs conditions d’utilisation. Discogs n’est ni affilié à Maison Sillon ni responsable de ce catalogue."
+    discogsNotice:"Les images et données Discogs sont utilisées conformément à leurs conditions d’utilisation. Discogs n’est ni affilié à Maison Sillon ni responsable de ce catalogue.", roomInspect:"Touchez une pièce en vedette pour l’examiner"
   },
   en: {
     eyebrow:"MONTREAL COLLECTION", heroTitle:"A considered collection,<br>heard differently.", heroBody:"Scroll through the room. Discover selected records, then browse the full catalogue.",
@@ -28,7 +29,7 @@ const copy = {
     password:"Password", signIn:"Open session", signOut:"Sign out", turn:"View reverse", media:"Media condition", sleeve:"Sleeve condition", label:"Label", format:"Format", year:"Year", available:"Available", unavailable:"Sold",
     copied:"Copied — paste it into Messenger!", shippingSmall:"$10 for 1–2 CDs; $20 for 3+ CDs.", items:"albums shown", showMore:"Show more", edit:"Edit", addListing:"Add an album", save:"Save", cancel:"Cancel",
     editorTitle:"Edit album", newTitle:"Add an album", quantity:"Quantity", imageUrl:"HD image URL", notes:"Notes", releaseId:"Discogs ID", saved:"Changes saved.", loginError:"Incorrect password.", adminOpen:"Admin session is open.",
-    discogsNotice:"Discogs images and data are used under its terms of use. Discogs is not affiliated with Maison Sillon and is not responsible for this catalogue."
+    discogsNotice:"Discogs images and data are used under its terms of use. Discogs is not affiliated with Maison Sillon and is not responsible for this catalogue.", roomInspect:"Tap a featured piece to inspect it"
   }
 };
 
@@ -55,7 +56,7 @@ function applyLanguage() {
   });
   document.querySelectorAll("[data-i18n-placeholder]").forEach(element => element.placeholder = t(element.dataset.i18nPlaceholder));
   document.querySelector("#language").textContent = state.language === "fr" ? "FR / EN" : "EN / FR";
-  renderFilters(); renderFeatured(); renderCatalogue(); renderCart();
+  renderFilters(); renderRoomShowcase(); renderFeatured(); renderCatalogue(); renderCart();
 }
 
 async function loadInventory() {
@@ -92,6 +93,36 @@ function renderFeatured() {
   const categories = [...new Set(state.inventory.map(release => release.category))];
   const featured = categories.flatMap(category => state.inventory.filter(release => release.category === category && release.status !== "sold").sort((a,b) => b.popularity_score - a.popularity_score || b.price_cad - a.price_cad).slice(0,2)).slice(0,10);
   (featured.length ? featured : state.inventory.slice(0,6)).forEach(release => target.append(createCard(release)));
+}
+
+function selectedRoomReleases() {
+  const categories = [...new Set(state.inventory.map(release => release.category).filter(Boolean))];
+  const selected = categories.map(category => state.inventory
+    .filter(release => release.category === category && release.status !== "sold" && Number(release.quantity) > 0)
+    .sort((a,b) => b.popularity_score - a.popularity_score || b.price_cad - a.price_cad)[0])
+    .filter(Boolean).slice(0, 3);
+  return selected.length ? selected : state.inventory.filter(release => release.status !== "sold").slice(0, 3);
+}
+
+function renderRoomShowcase() {
+  const target = document.querySelector("#room-showcase");
+  if (!target) return;
+  const releases = selectedRoomReleases();
+  target.innerHTML = `<p class="room-hint">${escape(t("roomInspect"))}</p><div class="room-displays">${releases.map((release, index) => {
+    const image = release.custom_image_url || release.discogs_image_url || placeholder(release.title);
+    return `<button class="room-record ${index === 0 ? "is-active" : ""}" type="button" data-room-index="${index}" aria-label="${escape(`${release.artist} — ${release.title}`)}"><span class="room-cover"><img src="${escape(image)}" alt=""></span><span class="room-record-copy"><strong>${escape(release.title)}</strong><small>${escape(release.artist)}</small></span></button>`;
+  }).join("")}</div>`;
+  target.querySelectorAll(".room-record").forEach(button => button.onclick = () => {
+    const release = releases[Number(button.dataset.roomIndex)];
+    if (release) openRecord(release);
+  });
+}
+
+function setRoomStep(step) {
+  const records = document.querySelectorAll(".room-record");
+  if (!records.length || step === state.roomStep) return;
+  state.roomStep = step;
+  records.forEach((record, index) => record.classList.toggle("is-active", index === step % records.length));
 }
 
 function renderFilters() {
@@ -227,6 +258,7 @@ function setup() {
     // A low-cost camera move: we travel inward while the sticky room stays fixed.
     room.style.setProperty("--camera", String(1 + journey * .13));
     room.style.backgroundPosition = `center ${50 - journey * 8}%`;
+    setRoomStep(Math.min(2, Math.floor(journey * 3)));
     document.querySelector(".topbar").classList.toggle("scrolled", window.scrollY > 50);
   }, { passive:true });
   updateAdminSession().then(() => { if (state.admin) document.querySelector("#admin-tools").hidden = false; loadInventory(); });
