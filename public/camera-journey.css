@@ -1,5 +1,6 @@
 /* A three-view camera path stays inside the sticky viewport, so no blank page
    is exposed while the visitor scrolls. */
+.entrance{background-color:#160e0a;background-image:linear-gradient(#160e0a88,#160e0a88),url("/assets/maison-sillon-room-wide-v1.png");background-size:cover;background-position:center}
 .room::before{content:none!important}
 .room-scene{display:block!important;position:absolute;inset:0;z-index:0;opacity:0;background-size:cover;background-position:center;transition:opacity .72s ease;will-change:opacity}
 .scene-centre{background-image:linear-gradient(90deg,#09050355,#0000 42%,#09050333),url("/assets/maison-sillon-room-wide-v1.png")}
