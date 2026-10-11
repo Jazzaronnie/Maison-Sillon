@@ -108,7 +108,7 @@ function renderRoomShowcase() {
   const target = document.querySelector("#room-showcase");
   if (!target) return;
   const releases = selectedRoomReleases();
-  target.innerHTML = `<p class="room-hint">${escape(t("roomInspect"))}</p><div class="room-displays">${releases.map((release, index) => {
+  target.innerHTML = `<p class="room-hint">${escape(t("roomInspect"))}</p><p class="room-shelf-label" id="room-shelf-label">${escape(releases[0]?.category || "Collection")}</p><div class="room-displays">${releases.map((release, index) => {
     const image = release.custom_image_url || release.discogs_image_url || placeholder(release.title);
     return `<button class="room-record ${index === 0 ? "is-active" : ""}" type="button" data-room-index="${index}" aria-label="${escape(`${release.artist} — ${release.title}`)}"><span class="room-cover"><img src="${escape(image)}" alt=""></span><span class="room-record-copy"><strong>${escape(release.title)}</strong><small>${escape(release.artist)}</small></span></button>`;
   }).join("")}</div>`;
@@ -123,6 +123,9 @@ function setRoomStep(step) {
   if (!records.length || step === state.roomStep) return;
   state.roomStep = step;
   records.forEach((record, index) => record.classList.toggle("is-active", index === step % records.length));
+  const releases = selectedRoomReleases();
+  const label = document.querySelector("#room-shelf-label");
+  if (label) label.textContent = releases[step % releases.length]?.category || "Collection";
 }
 
 function renderFilters() {
@@ -255,13 +258,13 @@ function setup() {
   window.addEventListener("scroll", () => {
     const journey = Math.min(window.scrollY / Math.max(1, window.innerHeight * 1.3), 1);
     const room = document.querySelector("#room");
-    // A deliberately visible, mobile-friendly camera journey through the room.
-    // The scene advances inward and drifts slightly toward the active shelves.
-    const zoom = 1 + journey * .42;
-    const x = Math.sin(journey * Math.PI) * -3;
-    const y = journey * -12;
-    room.style.transform = `scale(${zoom}) translate3d(${x}%, ${y}%, 0)`;
-    room.style.backgroundPosition = `${50 + x}% ${50 + y}%`;
+    // The camera is painted inside the fixed viewport; never transform the sticky
+    // room container itself, which would expose a blank area below it on mobile.
+    room.style.transform = "none";
+    room.style.setProperty("--camera-zoom", String(1 + journey * .28));
+    // Three stops: left shelves → centre listening area → right shelves.
+    room.style.setProperty("--camera-x", `${42 + journey * 16}%`);
+    room.style.setProperty("--camera-y", `${50 - journey * 12}%`);
     setRoomStep(Math.min(2, Math.floor(journey * 3)));
     document.querySelector(".topbar").classList.toggle("scrolled", window.scrollY > 50);
   }, { passive:true });
