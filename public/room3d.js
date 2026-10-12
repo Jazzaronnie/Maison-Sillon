@@ -90,10 +90,11 @@ if (canvas && roomElement && entrance) {
     // moves the *same* camera through the room, then the render loop eases it to
     // the next viewpoint so the turn is plainly visible on touch devices too.
     const stops = [
-      { position: new THREE.Vector3(0, 4.4, 14.2), target: new THREE.Vector3(0, 3.0, -1.2) },
-      { position: new THREE.Vector3(-6.7, 3.8, 7.1), target: new THREE.Vector3(-8.7, 3.1, -0.2) },
-      { position: new THREE.Vector3(0, 3.9, -4.2), target: new THREE.Vector3(0, 3.0, -8.9) },
-      { position: new THREE.Vector3(6.7, 3.8, 7.1), target: new THREE.Vector3(8.7, 3.1, -0.2) }
+      // Enter through the centre, then pan left, rear, and right around the sofa.
+      { position: new THREE.Vector3(0, 4.35, 14.2), target: new THREE.Vector3(0, 3.0, -7.8) },
+      { position: new THREE.Vector3(-5.9, 3.65, 5.9), target: new THREE.Vector3(-8.9, 3.05, 0) },
+      { position: new THREE.Vector3(0, 3.65, 1.8), target: new THREE.Vector3(0, 3.05, 8.9) },
+      { position: new THREE.Vector3(5.9, 3.65, 5.9), target: new THREE.Vector3(8.9, 3.05, 0) }
     ];
     const cameraPosition = stops[0].position.clone();
     const lookTarget = stops[0].target.clone();
@@ -130,8 +131,8 @@ if (canvas && roomElement && entrance) {
     function render() {
       // The easing here is what makes a wheel gesture or mobile swipe read as a
       // cinematic move rather than an instant jump between static cameras.
-      cameraPosition.lerp(desiredPosition, 0.075);
-      lookTarget.lerp(desiredTarget, 0.075);
+      cameraPosition.lerp(desiredPosition, 0.035);
+      lookTarget.lerp(desiredTarget, 0.035);
       camera.position.copy(cameraPosition);
       camera.lookAt(lookTarget);
       renderer.render(scene, camera);
