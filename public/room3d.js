@@ -54,14 +54,17 @@ if (canvas && roomElement && entrance) {
     function shelfWall(angle, label, featureColor) {
       const group = new THREE.Group();
       group.rotation.y = angle;
-      group.position.set(0, 4, -9.1);
+      // Rotation changes the orientation of a Group, not its world position.
+      // Place each wall on the matching side of the room as well, otherwise
+      // three camera stops would look into empty darkness.
+      group.position.set(-9.1 * Math.sin(angle), 4, -9.1 * Math.cos(angle));
       group.add(box(10.8, 8.2, .34, darkWood, 0, 0, 0));
       for (let row = 0; row < 6; row++) {
         const y = -3.55 + row * 1.2;
         group.add(box(10.6, .14, .62, shelfWood, 0, y, .4));
         group.add(box(10.25, .045, .1, glow, 0, y + .21, .73));
         for (let col = 0; col < 25; col++) {
-          const seed = (row * 29 + col * 11 + Math.round(angle * 10)) % cdColors.length;
+          const seed = ((row * 29 + col * 11 + Math.round(angle * 10)) % cdColors.length + cdColors.length) % cdColors.length;
           const h = .48 + ((row + col) % 4) * .055;
           group.add(box(.25, h, .16, new THREE.MeshStandardMaterial({ color: cdColors[seed], roughness: .58 }), -4.82 + col * .4, y + .4 + h / 2, .7));
         }
