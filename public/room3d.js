@@ -86,22 +86,31 @@ if (canvas && roomElement && entrance) {
     chair.add(new THREE.Mesh(new THREE.SphereGeometry(1.5, 32, 20), ivory)); chair.children[1].scale.set(1, .78, .58); chair.children[1].position.set(0, 1.65, .55);
     chair.rotation.y = -.22; scene.add(chair);
 
+    // These are deliberate camera stops, not four replacement images.  Scrolling
+    // moves the *same* camera through the room, then the render loop eases it to
+    // the next viewpoint so the turn is plainly visible on touch devices too.
     const stops = [
-      { position: new THREE.Vector3(0, 4.6, 14), target: new THREE.Vector3(0, 3.2, 0) },
-      { position: new THREE.Vector3(-7.7, 3.7, 7.7), target: new THREE.Vector3(-8.3, 3.3, 0) },
-      { position: new THREE.Vector3(0, 3.4, -3.3), target: new THREE.Vector3(0, 3.2, -8.2) },
-      { position: new THREE.Vector3(7.7, 3.7, 7.7), target: new THREE.Vector3(8.3, 3.3, 0) }
+      { position: new THREE.Vector3(0, 4.4, 14.2), target: new THREE.Vector3(0, 3.0, -1.2) },
+      { position: new THREE.Vector3(-6.7, 3.8, 7.1), target: new THREE.Vector3(-8.7, 3.1, -0.2) },
+      { position: new THREE.Vector3(0, 3.9, -4.2), target: new THREE.Vector3(0, 3.0, -8.9) },
+      { position: new THREE.Vector3(6.7, 3.8, 7.1), target: new THREE.Vector3(8.7, 3.1, -0.2) }
     ];
-    const current = { position: stops[0].position.clone(), target: stops[0].target.clone() };
+    const cameraPosition = stops[0].position.clone();
+    const lookTarget = stops[0].target.clone();
+    const desiredPosition = stops[0].position.clone();
+    const desiredTarget = stops[0].target.clone();
     function smooth(value) { return value * value * (3 - 2 * value); }
     function applyJourney() {
+      // Using the section's live screen position is more dependable than a raw
+      // page scroll value when the room is sticky on Safari/iOS.
+      const bounds = entrance.getBoundingClientRect();
       const total = Math.max(1, entrance.offsetHeight - window.innerHeight);
-      const progress = THREE.MathUtils.clamp((window.scrollY - entrance.offsetTop) / total, 0, .9999);
+      const progress = THREE.MathUtils.clamp((-bounds.top) / total, 0, .9999);
       const scaled = progress * (stops.length - 1); const index = Math.floor(scaled); const local = smooth(scaled - index);
-      current.position.lerpVectors(stops[index].position, stops[index + 1].position, local);
-      current.target.lerpVectors(stops[index].target, stops[index + 1].target, local);
-      camera.position.copy(current.position); camera.lookAt(current.target);
+      desiredPosition.lerpVectors(stops[index].position, stops[index + 1].position, local);
+      desiredTarget.lerpVectors(stops[index].target, stops[index + 1].target, local);
       roomElement.dataset.scene = String(index);
+      roomElement.dataset.cameraProgress = progress.toFixed(3);
     }
     function resize() {
       const { width, height } = roomElement.getBoundingClientRect();
@@ -113,9 +122,24 @@ if (canvas && roomElement && entrance) {
     window.addEventListener("resize", resize, { passive:true });
     window.addEventListener("scroll", applyJourney, { passive:true });
     new ResizeObserver(resize).observe(roomElement);
-    requestAnimationFrame(() => { resize(); applyJourney(); });
-    function render() { renderer.render(scene, camera); requestAnimationFrame(render); }
-    render();
+    requestAnimationFrame(() => {
+      resize();
+      applyJourney();
+      roomElement.classList.add("room3d-ready");
+    });
+    function render() {
+      // The easing here is what makes a wheel gesture or mobile swipe read as a
+      // cinematic move rather than an instant jump between static cameras.
+      cameraPosition.lerp(desiredPosition, 0.075);
+      lookTarget.lerp(desiredTarget, 0.075);
+      camera.position.copy(cameraPosition);
+      camera.lookAt(lookTarget);
+      renderer.render(scene, camera);
+    }
+    // setAnimationLoop survives mobile tab throttling better than a manually
+    // chained requestAnimationFrame and resumes cleanly when the tab is active.
+    renderer.setAnimationLoop(render);
+    window.__maisonSillon3D = { renderer, camera, applyJourney, roomElement };
   } catch (error) {
     console.warn("Maison Sillon 3D fallback", error);
     roomElement.classList.add("webgl-unavailable");
