@@ -120,9 +120,10 @@ function renderRoomShowcase() {
 
 function setRoomStep(step) {
   const records = document.querySelectorAll(".room-record");
-  if (!records.length || step === state.roomStep) return;
+  if (step === state.roomStep) return;
   state.roomStep = step;
   document.querySelector("#room").dataset.scene = String(step);
+  if (!records.length) return;
   records.forEach((record, index) => record.classList.toggle("is-active", index === step % records.length));
   const releases = selectedRoomReleases();
   const label = document.querySelector("#room-shelf-label");
@@ -262,7 +263,7 @@ function setup() {
     // The camera is painted inside the fixed viewport; never transform the sticky
     // room container itself, which would expose a blank area below it on mobile.
     room.style.transform = "none";
-    setRoomStep(Math.min(2, Math.floor(journey * 3)));
+    setRoomStep(Math.min(3, Math.floor(journey * 4)));
     document.querySelector(".topbar").classList.toggle("scrolled", window.scrollY > 50);
   }, { passive:true });
   updateAdminSession().then(() => { if (state.admin) document.querySelector("#admin-tools").hidden = false; loadInventory(); });
