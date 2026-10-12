@@ -54,3 +54,24 @@ header{padding-inline:24px}header>.brand{flex:none}header>nav{margin-left:auto;g
 /* Slightly tighter cart buttons, including the Added state. */
 .card-purchase>.quick-add{min-height:28px;padding:5px 7px}
 @media(max-width:600px){.card-purchase>.quick-add{padding:5px 6px}}
+
+/* Keep the preview's stacked opening composition at every screen width. */
+@media(min-width:651px){
+ .intro{left:clamp(24px,7vw,112px);right:24px;top:14%;max-width:780px}
+ .intro h1{font-size:clamp(60px,10svh,84px);letter-spacing:-3.5px;margin:22px 0 16px}
+ .intro-copy{font-size:clamp(13px,1.25vw,16px)}
+ .wall{left:50%;top:51%;width:min(122vw,1100px);height:auto;gap:clamp(12px,1.5vw,22px);margin-left:max(-61vw,-550px)}
+ .case-position{left:50%;top:69%;width:min(41vw,34svh,340px)}
+ .journey-footer>span:first-child{display:none}
+ .journey-static .case-position{top:69svh}
+ .journey-static .wall{top:51svh}
+}
+@media(min-width:651px) and (max-height:700px){
+ .intro{top:100px}
+ .intro h1{font-size:clamp(48px,9svh,60px);margin:16px 0 12px}
+ .intro-copy{font-size:12px;line-height:1.55}
+ .wall{top:58%}
+ .case-position{top:76%}
+ .journey-static .case-position{top:76svh}
+ .journey-static .wall{top:58svh}
+}

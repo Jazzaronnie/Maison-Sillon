@@ -7,10 +7,10 @@
   function render(){
     if(!ready||document.body.classList.contains('journey-static'))return;
     const w=innerWidth,h=innerHeight,mobile=w<=650;
-    const base=Math.min(mobile?w*.41:w*.24,mobile?Infinity:310);
+    const base=mobile?w*.41:Math.min(w*.41,h*.34,340);
     const zoomed=Math.min(w*(mobile?.90:.43),h*(mobile?.53:.65));
     const size=base+(zoomed-base)*state.zoom;
-    const initialX=w*(mobile?.5:.66),initialY=h*(mobile?.69:.48);
+    const initialX=w*.5,initialY=h*(!mobile&&h<=700?.76:.69);
     const zoomX=w*.5,zoomY=h*(mobile?.48:.49);
     const x=initialX+(zoomX-initialX)*state.zoom;
     const y=initialY+(zoomY-initialY)*state.zoom;
