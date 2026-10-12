@@ -84,3 +84,11 @@ header{padding-inline:24px}header>.brand{flex:none}header>nav{margin-left:auto;g
 @media(min-width:651px){.intro{right:clamp(24px,7vw,112px);max-width:none}.intro h1,.intro-copy{max-width:780px}}
 
 .journey-static .journey-footer{display:none}
+
+/* Share one top row for the desktop headline and location label. */
+@media(min-width:900px){
+ .intro{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:28px;row-gap:20px;align-items:start}
+ .intro>h1{grid-column:1;grid-row:1;margin:0}
+ .intro>.eyebrow{grid-column:2;grid-row:1;margin:0;padding-top:9px}
+ .intro>.intro-copy{grid-column:1;grid-row:2;margin:0}
+}

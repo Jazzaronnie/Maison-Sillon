@@ -63,9 +63,9 @@ function chooseWall(rows,hero){
  pick(r=>r.title.includes('Aladdin'));
  pick(r=>r.artist==='Norah Jones');
  pick(r=>r.title.includes('Twin Peaks'));
- pick(r=>r.category==='Folk & Country');
- pick(r=>r.category==='Ambient');
- for(const artist of ['The Beatles','Radiohead','Bob Marley & The Wailers','Daft Punk','Céline Dion','Johnny Cash','Adele (3)','AIR','Alanis Morissette'])pick(r=>r.artist===artist);
+ pick(r=>r.artist==='Michael Jackson'&&r.title==='Dangerous');
+ pick(r=>r.artist==='Coldplay'&&r.title==='Viva La Vida Or Death And All His Friends');
+ for(const artist of ['The Beatles','Radiohead','Bob Marley & The Wailers','Daft Punk','Céline Dion','Johnny Cash','Adele (3)','AIR','Madonna'])pick(r=>r.artist===artist);
  for(const r of pool){if(picked.length>=16)break;if(!covers.has(r.cover)){picked.push(r);covers.add(r.cover)}}
  return picked;
 }
