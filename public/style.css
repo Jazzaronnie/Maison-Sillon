@@ -60,7 +60,7 @@ header{padding-inline:24px}header>.brand{flex:none}header>nav{margin-left:auto;g
  .intro{left:clamp(24px,7vw,112px);right:24px;top:14%;max-width:780px}
  .intro h1{font-size:clamp(60px,10svh,84px);letter-spacing:-3.5px;margin:22px 0 16px}
  .intro-copy{font-size:clamp(13px,1.25vw,16px)}
- .wall{left:50%;top:51%;width:min(122vw,1100px);height:auto;gap:clamp(12px,1.5vw,22px);margin-left:max(-61vw,-550px)}
+ .wall{left:50%;top:51%;width:122vw;height:auto;gap:clamp(12px,1.5vw,22px);margin-left:-61vw}
  .case-position{left:50%;top:69%;width:min(41vw,34svh,340px)}
  .journey-footer>span:first-child{display:none}
  .journey-static .case-position{top:69svh}
@@ -75,3 +75,6 @@ header{padding-inline:24px}header>.brand{flex:none}header>nav{margin-left:auto;g
  .journey-static .case-position{top:76svh}
  .journey-static .wall{top:58svh}
 }
+
+/* Wider screens reveal more covers, retaining the phone's four-column wall. */
+@media(min-width:1100px){.wall{grid-template-columns:repeat(6,minmax(0,1fr))}}

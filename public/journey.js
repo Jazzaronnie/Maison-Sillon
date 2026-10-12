@@ -3,6 +3,7 @@
   const q=s=>document.querySelector(s),all=s=>document.querySelectorAll(s);
   const clamp=(x)=>Math.max(0,Math.min(1,x));
   const state={zoom:0,flip:0,cards:0,plunge:0,scale:1,blend:0,sceneFade:0};
+  let openingY=null;
   let timeline=null,ready=false,mediaQuery=matchMedia('(prefers-reduced-motion: reduce)');
   function render(){
     if(!ready||document.body.classList.contains('journey-static'))return;
@@ -10,7 +11,7 @@
     const base=mobile?w*.41:Math.min(w*.41,h*.34,340);
     const zoomed=Math.min(w*(mobile?.90:.43),h*(mobile?.53:.65));
     const size=base+(zoomed-base)*state.zoom;
-    const initialX=w*.5,initialY=h*(!mobile&&h<=700?.76:.69);
+    const initialX=w*.5,initialY=mobile?h*.69:(openingY??h*.69);
     const zoomX=w*.5,zoomY=h*(mobile?.48:.49);
     const x=initialX+(zoomX-initialX)*state.zoom;
     const y=initialY+(zoomY-initialY)*state.zoom;
@@ -61,7 +62,25 @@
     if(mediaQuery.matches||!window.gsap||!window.ScrollTrigger){staticMode();return}
     document.body.classList.remove('journey-static');document.body.classList.add('motion-enabled');
     gsap.registerPlugin(ScrollTrigger);
+    openingY=null;
+    q('.wall').style.top='';
     Object.assign(state,{zoom:0,flip:0,cards:0,plunge:0,scale:1,blend:0,sceneFade:0});
+    // Position desktop artwork from the actual translated text height, rather
+    // than a viewport percentage. Phone positioning stays unchanged.
+    render();
+    if(innerWidth>650){
+      const sceneTop=q('.stage').getBoundingClientRect().top;
+      const copyBottom=q('.intro-copy').getBoundingClientRect().bottom-sceneTop;
+      const firstCover=[...all('.wall-cover')].find(c=>c.getBoundingClientRect().left>=0)||q('.wall-cover');
+      if(firstCover){
+        const currentTop=parseFloat(getComputedStyle(q('.wall')).top);
+        const firstTop=firstCover.getBoundingClientRect().top-sceneTop;
+        q('.wall').style.top=`${currentTop+copyBottom+48-firstTop}px`;
+      }
+      const base=Math.min(innerWidth*.41,innerHeight*.34,340);
+      openingY=copyBottom+48+base/2;
+      render();
+    }
     timeline=gsap.timeline({
       defaults:{ease:'none'},paused:true,onUpdate:render
     });
