@@ -9,10 +9,10 @@
     if(!ready||document.body.classList.contains('journey-static'))return;
     const w=innerWidth,h=innerHeight,mobile=w<=650;
     const base=mobile?w*.41:Math.min(w*.41,h*.34,340);
-    const zoomed=Math.min(w*(mobile?.90:.43),h*(mobile?.53:.65));
+    const zoomed=mobile?Math.min(w*.90,h*.53):Math.min(w*.58,h*.78,Math.max(240,h-146));
     const size=base+(zoomed-base)*state.zoom;
     const initialX=w*.5,initialY=mobile?h*.69:(openingY??h*.69);
-    const zoomX=w*.5,zoomY=h*(mobile?.48:.49);
+    const zoomX=w*.5,zoomY=mobile?h*.48:(h+82)/2;
     const x=initialX+(zoomX-initialX)*state.zoom;
     const y=initialY+(zoomY-initialY)*state.zoom;
     const position=q('.case-position');
