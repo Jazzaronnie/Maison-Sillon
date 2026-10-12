@@ -103,10 +103,17 @@ if (canvas && roomElement && entrance) {
       camera.position.copy(current.position); camera.lookAt(current.target);
       roomElement.dataset.scene = String(index);
     }
-    function resize() { const { width, height } = roomElement.getBoundingClientRect(); renderer.setSize(width, height, false); camera.aspect = width / height; camera.updateProjectionMatrix(); }
+    function resize() {
+      const { width, height } = roomElement.getBoundingClientRect();
+      if (width < 2 || height < 2) return;
+      renderer.setSize(width, height, false);
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+    }
     window.addEventListener("resize", resize, { passive:true });
     window.addEventListener("scroll", applyJourney, { passive:true });
-    resize(); applyJourney();
+    new ResizeObserver(resize).observe(roomElement);
+    requestAnimationFrame(() => { resize(); applyJourney(); });
     function render() { renderer.render(scene, camera); requestAnimationFrame(render); }
     render();
   } catch (error) {
