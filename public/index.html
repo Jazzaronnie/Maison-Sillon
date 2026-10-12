@@ -1,89 +1,10 @@
-<!doctype html>
-<html lang="fr">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#160e0a">
-  <title>Maison Sillon — CD & Vinyl Collection</title>
-  <link rel="stylesheet" href="/styles.css">
-  <link rel="stylesheet" href="/jewel-case.css">
-</head>
-<body>
-  <header class="topbar">
-    <a class="brand" href="#entrance" aria-label="Maison Sillon">Maison <em>Sillon</em></a>
-    <nav>
-      <button class="text-button" id="language" aria-label="Changer de langue">FR / EN</button>
-      <button class="bag-button" id="open-cart" aria-label="Ouvrir le panier">Panier <span id="cart-count">0</span></button>
-    </nav>
-  </header>
-
-  <main>
-    <section class="entrance" id="entrance">
-      <div id="scroll-wrapper">
-        <div id="sticky-viewport">
-          <div class="hero-wash" aria-hidden="true"></div>
-          <div class="album-grid" id="album-grid" aria-hidden="true"></div>
-        <div class="entrance-copy">
-          <p class="eyebrow" data-i18n="eyebrow">COLLECTION MONTRÉALAISE</p>
-          <h1 data-i18n="heroTitle">Une collection choisie,<br>à écouter autrement.</h1>
-          <p data-i18n="heroBody">Faites défiler pour parcourir la salle. Découvrez les pièces sélectionnées, puis explorez le catalogue complet.</p>
-          <button class="primary" type="button" id="flip-hero" data-i18n="openTracklist">Voir la sélection</button>
-        </div>
-        <section id="hero-album" aria-label="Maison Sillon tracklist">
-          <div class="card-inner" id="hero-card-inner">
-            <div class="card-front">
-              <img class="hero-cover" id="hero-cover" alt="">
-              <div class="cover-shade" aria-hidden="true"></div>
-              <p class="case-kicker">MAISON SILLON</p>
-              <div class="case-front-copy"><span id="hero-artist">CURATED AUDIO VAULT</span><strong id="hero-title">MONTRÉAL, QC</strong></div>
-              <button class="case-turn-button" type="button" data-i18n="openTracklist">Voir la sélection</button>
-            </div>
-            <div class="card-back" aria-hidden="true"></div>
-          </div>
-        </section>
-        <section class="archive-navigation" id="archive-navigation" aria-label="Maison Sillon tracklist" aria-hidden="true" inert>
-          <div class="cd-liner-sticker">
-            <div class="sticker-header"><h2>MAISON SILLON</h2><p data-i18n="tracklistSubtitle">MONTRÉAL, QC • SÉLECTIONS</p></div>
-            <p class="tracklist-label" data-i18n="tracklistLabel">PISTES / SÉLECTIONS</p>
-            <ul class="tracklist-menu" id="tracklist-menu" aria-live="polite"></ul>
-            <div class="mini-basket-footer"><span>💿 <span data-i18n="basket">Panier</span>: <strong id="liner-cart-count">0</strong> <span data-i18n="itemsShort">articles</span></span><button class="checkout-slide-btn" id="liner-cart" type="button" data-i18n="viewBasket">Voir le panier</button></div>
-          </div>
-        </section>
-          <div class="scroll-note" data-i18n="scroll">Défiler pour entrer</div>
-        </div>
-        <div id="scroll-extend" aria-hidden="true"></div>
-      </div>
-    </section>
-
-    <section class="featured" id="featured">
-      <div class="section-heading"><p class="eyebrow" data-i18n="featuredEyebrow">PIÈCES EN VEDETTE</p><h2 data-i18n="featuredTitle">Sur les étagères</h2></div>
-      <p class="section-intro" data-i18n="featuredBody">Albums sélectionnés selon leur prix, leur disponibilité et leur intérêt Discogs. Touchez une pochette pour l’examiner.</p>
-      <div class="featured-grid" id="featured-grid"></div>
-    </section>
-
-    <section class="catalogue" id="catalogue">
-      <div class="catalogue-title"><p class="eyebrow" data-i18n="catalogueEyebrow">INVENTAIRE COMPLET</p><h2 data-i18n="catalogueTitle">Le catalogue</h2><p id="catalogue-count"></p></div>
-      <div class="catalogue-layout">
-        <aside class="filters" aria-label="Filtres">
-          <label><span data-i18n="search">Rechercher</span><input id="search" type="search" data-i18n-placeholder="searchPlaceholder" placeholder="Artiste ou titre"></label>
-          <label><span data-i18n="category">Catégorie</span><select id="category-filter"><option value="" data-i18n="all">Toutes</option></select></label>
-          <label><span data-i18n="condition">État du média</span><select id="condition-filter"><option value="" data-i18n="all">Toutes</option></select></label>
-          <label><span data-i18n="price">Prix maximum</span><input id="price-filter" type="range" min="0" max="100" value="100"><output id="price-output">100 $</output></label>
-          <button class="text-button admin-launch" id="admin-launch" data-i18n="admin">Administration</button>
-        </aside>
-        <div><div class="catalogue-grid" id="catalogue-grid" aria-live="polite"></div><button class="more-button" id="show-more" hidden>Afficher plus</button></div>
-      </div>
-    </section>
-  </main>
-
-  <dialog id="record-dialog" class="record-dialog"><button class="close" data-close="record-dialog" aria-label="Fermer">×</button><div id="record-content"></div></dialog>
-  <dialog id="cart-dialog" class="cart-dialog"><button class="close" data-close="cart-dialog" aria-label="Fermer">×</button><h2 data-i18n="cartTitle">Votre panier</h2><div id="cart-items"></div><div class="delivery"><h3 data-i18n="fulfillment">Livraison et cueillette</h3><label><input type="radio" name="delivery" value="pickup" checked><span data-i18n="pickup">Cueillette gratuite à Montréal</span></label><label><input type="radio" name="delivery" value="shipping"><span data-i18n="shipping">Livraison postale</span></label><label id="neighbourhood-row" hidden><span data-i18n="neighbourhood">Quartier et code postal</span><input id="neighbourhood" placeholder="Ex. Villeray, H2R 1A1"></label><p id="shipping-note"></p></div><div class="total"><span data-i18n="total">Total estimé</span><strong id="cart-total">0,00 $</strong></div><button class="primary full" id="copy-order" data-i18n="copyOrder">Copier la demande pour Messenger</button></dialog>
-  <dialog id="admin-dialog" class="admin-dialog"><button class="close" data-close="admin-dialog" aria-label="Fermer">×</button><h2 data-i18n="adminTitle">Administration Maison Sillon</h2><p data-i18n="adminBody">Entrez votre mot de passe pour modifier les prix, quantités, images et disponibilités.</p><label><span data-i18n="password">Mot de passe</span><input id="admin-password" type="password" autocomplete="current-password"></label><button class="primary full" id="admin-login" data-i18n="signIn">Ouvrir la session</button><p id="admin-status" role="status"></p><div id="admin-tools" hidden><hr><button class="primary full" id="admin-add" data-i18n="addListing">Ajouter un album</button><button class="text-button logout" id="admin-logout" data-i18n="signOut">Fermer la session</button></div></dialog>
-  <dialog id="editor-dialog" class="editor-dialog"><button class="close" data-close="editor-dialog" aria-label="Fermer">×</button><h2 id="editor-heading">Modifier l’album</h2><form id="editor-form"><div class="editor-grid"><label>Artiste<input name="artist" required></label><label>Titre<input name="title" required></label><label><span data-i18n="releaseId">ID Discogs</span><input name="release_id"></label><label><span data-i18n="price">Prix maximum</span><input name="price_cad" type="number" min="0" step="0.01" required></label><label><span data-i18n="quantity">Quantité</span><input name="quantity" type="number" min="0" step="1" required></label><label><span data-i18n="available">Disponible</span><select name="status"><option value="available">Disponible / Available</option><option value="sold">Vendu / Sold</option></select></label><label><span data-i18n="category">Catégorie</span><input name="category"></label><label><span data-i18n="format">Format</span><input name="format"></label><label><span data-i18n="label">Étiquette</span><input name="label_name"></label><label><span data-i18n="year">Année</span><input name="release_year" type="number" min="1900" max="2100"></label><label><span data-i18n="media">État média</span><input name="media_condition"></label><label><span data-i18n="sleeve">Pochette</span><input name="sleeve_condition"></label><label class="wide"><span data-i18n="imageUrl">URL de l’image HD</span><input name="custom_image_url" type="url" placeholder="https://"></label><label class="wide"><span data-i18n="notes">Notes</span><textarea name="notes" rows="3"></textarea></label></div><p id="editor-status" role="status"></p><button class="primary full" type="submit" data-i18n="save">Enregistrer</button></form></dialog>
-  <footer><p data-i18n="discogsNotice">Les images et données Discogs sont utilisées conformément à leurs conditions d’utilisation. Discogs n’est ni affilié à Maison Sillon ni responsable de ce catalogue.</p></footer>
-  <template id="card-template"><article class="album-card"><button class="cover-button"><img loading="lazy" alt=""><span class="sold" data-i18n="sold">VENDU</span></button><div class="album-copy"><h3></h3><p class="artist"></p><p class="card-price"></p><button class="add" data-i18n="add">Ajouter</button><button class="admin-edit" hidden data-i18n="edit">Modifier</button></div></article></template>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/ScrollTrigger.min.js"></script>
-  <script type="module" src="/app.js"></script>
-</body>
-</html>
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><script>
+// A refresh opens the introduction; browser-restored mid-flip positions are avoided.
+history.scrollRestoration='manual';
+window.scrollTo({top:0,left:0,behavior:'instant'});
+</script><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#eeeae3"><meta name="description" content="Maison Sillon : une collection montréalaise de CD d’occasion. Explorez les albums, composez votre sélection et préparez votre demande sur Messenger."><title>Maison Sillon — La musique se garde.</title><link rel="stylesheet" href="style.css"></head><body>
+<header><a class="brand" href="#" aria-label="Maison Sillon, accueil">maison sillon<span class="brand-dot">●</span></a><nav><div id="language" translate="no" role="group" aria-label="Langue / Language"><button type="button" data-language="fr" lang="fr" aria-label="Français" aria-pressed="true">FR</button><span aria-hidden="true">|</span><button type="button" data-language="en" lang="en" aria-label="English" aria-pressed="false">EN</button></div><button class="basket-trigger cart-control" aria-label="Ouvrir le panier"><svg class="cart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2 3h3l2.5 12h11L21 7H6"/><path d="M8 15l-1 3h12"/><circle cx="9" cy="21" r="1"/><circle cx="18" cy="21" r="1"/></svg><span class="cart-label">Panier</span><span class="cart-count">0</span></button></nav></header>
+<main><section id="journey" aria-label="Une pochette se retourne au fil du défilement"><div class="stage"><div class="intro"><p class="eyebrow">MONTRÉAL · CD D’OCCASION</p><h1>La musique<br>se <em>garde.</em></h1><p class="intro-copy">Des albums qui ont une histoire.<br>Et encore beaucoup à raconter.</p></div><div class="wall" aria-hidden="true"></div><div class="case-position"><div class="jewel"><div class="front face"><div class="spine"></div><img id="hero-cover" alt="Album vedette"><div class="case-gloss"></div></div><div class="back face card-back selection-back"><div class="booklet-inner"><p class="selection-title">LES SÉLECTIONS DU JOUR</p><h2>De belles<br><em>découvertes.</em></h2><div class="featured-albums-row" id="booklet-albums"></div><button class="scroll-down-prompt">Continuez à défiler pour voir le catalogue complet <span aria-hidden="true">↗</span></button></div></div></div></div><div class="journey-footer"><span>UNE COLLECTION À TRANSMETTRE</span><span class="scroll-note">DÉFILER POUR DÉCOUVRIR ↓</span></div><div class="progress"><i></i></div></div></section>
+<section id="catalogue"><div class="catalogue-heading"><div><p class="eyebrow">FACE B / L’INVENTAIRE COMPLET</p><h2>Le plaisir<br>de <em>découvrir.</em></h2></div><p>Un classique retrouvé. Une découverte inattendue.<br>Votre prochaine écoute est peut-être ici.<br><span id="inventory-count"></span></p></div><div class="toolbar"><label class="search"><span>⌕</span><input id="search" type="search" placeholder="Rechercher un artiste ou un album…" aria-label="Rechercher un artiste ou un album"></label><label class="sort-label">Trier <select id="sort"><option value="artist">Artiste A–Z</option><option value="low">Prix croissant</option><option value="high">Prix décroissant</option></select></label></div><div class="shop-layout"><aside><p class="eyebrow">GENRES MUSICAUX</p><div id="filters"></div><label class="filter-label">État du CD<select id="condition"><option value="">Tous les états</option></select></label><label class="filter-label">Prix maximum <span id="price-label">Sans limite</span><input id="price" type="range" min="0" max="650" value="650"></label><button id="reset">Réinitialiser les filtres ↺</button><div class="aside-note"><span>↗</span><p>Composez votre panier.<br>Copiez votre sélection.<br>Écrivez-nous sur Messenger.</p></div></aside><div class="results"><div class="results-top"><span id="result-count"></span><span>PRIX EN DOLLARS CANADIENS</span></div><div id="grid" aria-live="polite"></div><button id="more">Voir plus d’albums ↓</button><p class="image-note">Pochettes illustratives lorsqu’elles sont disponibles. L’édition exacte et son état sont indiqués dans la fiche.</p></div></div></section>
+<section class="closing"><p class="eyebrow">LES GRANDS ALBUMS NE VIEILLISSENT PAS.</p><p>Ils changent<br>de <em>maison.</em></p><a href="#catalogue">Trouvez votre prochain CD ↗</a></section></main><footer><a class="brand" href="#">maison sillon<span class="brand-dot">●</span></a><span>UNE COLLECTION MONTRÉALAISE</span><span>CD · SECONDE MAIN</span></footer><p class="artwork-credit">Pochettes issues de Discogs et d’Apple/iTunes. Ce site utilise l’API Discogs, sans affiliation, parrainage ni approbation de Discogs. <a href="https://www.discogs.com" target="_blank" rel="noopener noreferrer">Discogs ↗</a></p>
+<button class="mobile-cart basket-trigger cart-control" aria-label="Ouvrir le panier"><svg class="cart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2 3h3l2.5 12h11L21 7H6"/><path d="M8 15l-1 3h12"/><circle cx="9" cy="21" r="1"/><circle cx="18" cy="21" r="1"/></svg><span class="cart-count">0</span></button><dialog id="detail"><button class="close" aria-label="Fermer">×</button><div id="detail-content"></div></dialog><dialog id="cart" aria-labelledby="cart-title"><button class="close" aria-label="Fermer">×</button><h2 id="cart-title">Votre panier</h2><div id="cart-items"></div><fieldset class="delivery"><legend>Livraison et cueillette</legend><label class="delivery-choice"><input type="radio" name="fulfillment" value="pickup" checked><span>Cueillette gratuite à Montréal</span></label><label class="delivery-choice"><input type="radio" name="fulfillment" value="shipping"><span>Livraison postale</span></label><label class="postal-field"><span>Quartier et code postal</span><input id="postal" type="text" maxlength="120" placeholder="Ex. Villeray, H2R 1A1" autocomplete="postal-code"></label><p id="delivery-status"></p><p class="shipping-rates">Livraison : 10 $ pour 1–3 CD · 20 $ dès 4 CD.</p></fieldset><div class="cart-summary"><div class="summary-line"><span>Sous-total des CD</span><span id="subtotal"></span></div><div class="summary-line"><span>Frais de livraison</span><span id="shipping-fee"></span></div><div class="total"><span>Total estimé</span><strong id="total"></strong></div></div><button class="primary" id="copy">Copier ma demande pour Messenger ↗</button><textarea id="order-text" aria-label="Votre demande à copier" hidden></textarea><p id="copy-status" role="status"></p></dialog><script src="vendor/gsap.min.js" defer></script><script src="vendor/ScrollTrigger.min.js" defer></script><script src="inventory-service.js" defer></script><script src="selections.js" defer></script><script src="journey.js?v=refresh-sync" defer></script><script src="app.js?v=condition-above-cart" defer></script></body></html>

@@ -2,8 +2,14 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "maison-sillon",
   "main": "src/worker.js",
-  "compatibility_date": "2026-10-11",
-  "assets": { "directory": "./public", "binding": "ASSETS" },
+  "compatibility_date": "2026-10-12",
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": [
+      "/api/*"
+    ]
+  },
   "d1_databases": [
     {
       "binding": "DB",

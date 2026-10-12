@@ -1,400 +1,83 @@
-const state = {
-  language: localStorage.getItem("maison-language") || "fr",
-  inventory: [],
-  cart: JSON.parse(localStorage.getItem("maison-cart") || "[]"),
-  admin: false,
-  visibleCount: 80,
-  priceLimitInitialized: false
-};
+const translations={"Ajouter":"Add to cart","Ajouté ✓":"Added ✓","Vendu":"Sold","Pochettes issues de Discogs et d’Apple/iTunes. Ce site utilise l’API Discogs, sans affiliation, parrainage ni approbation de Discogs.": "Artwork from Discogs and Apple/iTunes. This site uses the Discogs API but is not affiliated with, sponsored or endorsed by Discogs.","MONTRÉAL · CD D’OCCASION": "MONTRÉAL · PRE-OWNED CDs", "La musique": "Music", "se": "is", "garde.": "for keeps.", "Des albums qui ont une histoire.": "Albums with a story.", "Et encore beaucoup à raconter.": "And so much more to tell.", "À chaque humeur,": "For every mood,", "son": "a", "sillon.": "soundtrack.", "TRACKLIST — LA COLLECTION": "TRACKLIST — THE COLLECTION", "MONTRÉAL, QUÉBEC": "MONTRÉAL, QUÉBEC", "SECONDE MAIN. PREMIÈRE ÉCOUTE.": "SECOND HAND. FIRST LISTEN.", "UNE COLLECTION À TRANSMETTRE": "A COLLECTION TO PASS ON", "DÉFILER POUR DÉCOUVRIR ↓": "SCROLL TO DISCOVER ↓", "Votre prochaine écoute": "Your next listen", "Ouvrir le panier ↗": "Open your cart ↗", "FACE B / L’INVENTAIRE COMPLET": "SIDE B / THE COMPLETE INVENTORY", "Le plaisir": "The joy", "de": "of", "découvrir.": "discovery.", "Un classique retrouvé. Une découverte inattendue.": "An old favourite. An unexpected discovery.", "Votre prochaine écoute est peut-être ici.": "Your next listen might be right here.", "Rechercher un artiste ou un album…": "Search artists or albums…", "Rechercher un artiste ou un album": "Search for an artist or album", "Trier": "Sort", "Artiste A–Z": "Artist A–Z", "Prix croissant": "Price: low to high", "Prix décroissant": "Price: high to low", "GENRES MUSICAUX": "MUSIC GENRES", "État du CD": "CD condition", "Tous les états": "All conditions", "Prix maximum": "Maximum price", "Sans limite": "Any price", "Réinitialiser les filtres ↺": "Reset filters ↺", "Composez votre panier.": "Build your cart.", "Copiez votre sélection.": "Copy your selection.", "Écrivez-nous sur Messenger.": "Message us on Messenger.", "PRIX EN DOLLARS CANADIENS": "PRICES IN CANADIAN DOLLARS", "Voir plus d’albums ↓": "Show more albums ↓", "Pochettes illustratives lorsqu’elles sont disponibles. L’édition exacte et son état sont indiqués dans la fiche.": "Illustrative artwork where available. Exact edition and condition are listed in the album details.", "LES GRANDS ALBUMS NE VIEILLISSENT PAS.": "GREAT ALBUMS NEVER GROW OLD.", "Ils changent": "They find", "maison.": "a new home.", "Trouvez votre prochain CD ↗": "Find your next CD ↗", "UNE COLLECTION MONTRÉALAISE": "A MONTRÉAL COLLECTION", "CD · SECONDE MAIN": "CDs · SECOND HAND", "Ouvrir le panier": "Open cart", "Panier": "Cart", "Fermer": "Close", "VOTRE SÉLECTION": "YOUR SELECTION", "À vous": "Your turn", "jouer.": "to play.", "Total des albums": "Album total", "Copiez votre sélection et collez-la dans votre conversation Messenger avec le vendeur pour confirmer la disponibilité et convenir de la remise.": "Copy your selection and paste it into your Messenger conversation with the seller to confirm availability and arrange pickup or delivery.", "Copier ma demande pour Messenger ↗": "Copy my Messenger request ↗", "Votre demande à copier": "Your request to copy", "Retirer": "Remove", "Votre panier est vide. Explorez le catalogue et ajoutez vos CD préférés.": "Your cart is empty. Browse the catalogue and add your favourite CDs.", "Année": "Year", "Non renseignée": "Not specified", "Média": "Media", "Pochette": "Sleeve", "Label": "Label", "Édition Discogs": "Discogs edition", "Indisponible": "Unavailable", "Déjà dans votre panier": "Already in your cart", "Ajouter au panier ↗": "Add to cart ↗", "Ajouté à votre panier ✓": "Added to your cart ✓", "Prix en dollars canadiens. Disponibilité à confirmer avec le vendeur. La pochette peut illustrer une autre édition.": "Prices in Canadian dollars. Confirm availability with the seller. Artwork may depict another edition.", "Aucun album pour cette recherche. Essayez un autre titre ou élargissez vos filtres.": "No albums match this search. Try another title or broaden your filters.", "Copié ! Collez votre demande dans Messenger.": "Copied! Paste your request into Messenger.", "Sélectionnez puis copiez le texte ci-dessous.": "Select and copy the text below.", "Le catalogue n’a pas pu se charger. Rechargez la page pour réessayer.": "The catalogue could not load. Reload the page to try again.", "Toute la collection": "The full collection", "Rock & pop": "Rock & pop", "Jazz & blues": "Jazz & blues", "Classique": "Classical", "Folk & country": "Folk & country", "Ambient": "Ambient", "Album vedette": "Featured album", "Maison Sillon, accueil": "Maison Sillon, home", "Une pochette se retourne au fil du défilement": "An album cover flips as you scroll", "Votre panier": "Your cart", "Livraison et cueillette": "Delivery & pickup", "Cueillette gratuite à Montréal": "Free pickup in Montréal", "Livraison postale": "Postal shipping", "Quartier et code postal": "Neighbourhood and postal code", "Ex. Villeray, H2R 1A1": "E.g. Villeray, H2R 1A1", "Livraison : 10 $ pour 1–3 CD · 20 $ dès 4 CD.": "Shipping: $10 for 1–3 CDs · $20 for 4 or more CDs.", "Sous-total des CD": "CD subtotal", "Frais de livraison": "Shipping fee", "Total estimé": "Estimated total", "Aucuns frais de livraison": "No shipping fee", "Ajoutez des CD pour calculer les frais.": "Add CDs to calculate shipping.", "À vérifier": "To be verified", "Sélections en vedette": "Featured selections", "SÉLECTIONS EN VEDETTE": "FEATURED SELECTIONS", "De belles": "Great", "découvertes.": "discoveries.", "Continuez à défiler pour voir le catalogue complet": "Keep scrolling to see full catalog", "LES SÉLECTIONS DU JOUR": "TODAY’S SELECTIONS", "PISTES / SÉLECTIONS": "TRACKS / SELECTIONS", "Rechercher dans le catalogue miniature": "Search the miniature catalogue", "Voir le catalogue": "Browse the catalogue", "Aucun résultat": "No results"};
+const conditionFrench={"Near Mint (NM or M-)": "Presque neuf (NM ou M-)", "Very Good Plus (VG+)": "Très bon état plus (VG+)", "Very Good (VG)": "Très bon état (VG)", "Mint (M)": "Neuf (M)", "Good Plus (G+)": "Bon état plus (G+)", "Good (G)": "Bon état (G)", "Fair (F)": "État moyen (F)"};
 
-let jewelTrigger;
+let language='fr';try{language=localStorage.getItem('ms-language')==='en'?'en':'fr'}catch{}
+const reverseTranslations=Object.fromEntries(Object.entries(translations).map(([a,b])=>[b,a]));
+const conditionEnglish=Object.fromEntries(Object.entries(conditionFrench).map(([a,b])=>[b,a]));
+function translateText(value){const trim=value.trim();if(!trim)return value;let canonical=reverseTranslations[trim]||trim;let translated=language==='en'?(translations[canonical]||canonical):canonical;
+if(conditionEnglish[trim]||conditionFrench[trim]){const original=conditionEnglish[trim]||trim;translated=language==='en'?original:conditionFrench[original]}
+const count=trim.match(/^([\d\s\u00a0,]+) (CD DANS LA COLLECTION|CDs IN THE COLLECTION)$/);if(count)translated=count[1]+(language==='en'?' CDs IN THE COLLECTION':' CD DANS LA COLLECTION');
+if(trim.startsWith('Voir ')&&trim.includes(' de ')&&language==='en')translated=trim.replace(/^Voir /,'View ').replace(/ de /,' by ');
+if(trim.startsWith('Pochette illustrative :')&&language==='en')translated=trim.replace('Pochette illustrative :','Illustrative artwork:');
+if(trim.startsWith('Illustrative artwork:')&&language==='fr')translated=trim.replace('Illustrative artwork:','Pochette illustrative :');
+return value.replace(trim,translated)}
+function translateTree(root){if(root.nodeType===3){if(!root.parentElement?.closest('[translate="no"],script,style,textarea')){const v=translateText(root.nodeValue);if(v!==root.nodeValue)root.nodeValue=v}return}if(root.nodeType!==1||root.closest('[translate="no"],script,style,textarea'))return;
+for(const attr of ['placeholder','aria-label','title','alt']){if(root.hasAttribute(attr)){const old=root.getAttribute(attr),next=translateText(old);if(next!==old)root.setAttribute(attr,next)}}for(const n of [...root.childNodes])translateTree(n)}
+function updateLanguageButton(){document.documentElement.lang=language;for(const [selector,fr,en] of [['.intro h1','La musique<br>se <em>garde.</em>','Music<br>is <em>for keeps.</em>'],['.catalogue-heading h2','Le plaisir<br>de <em>découvrir.</em>','The joy<br>of <em>discovery.</em>'],['.closing>p:not(.eyebrow)','Ils changent<br>de <em>maison.</em>','They find<br>a <em>new home.</em>'],['#cart h2','Votre panier','Your cart'],['.booklet-inner h2','De belles<br><em>découvertes.</em>','Great<br><em>finds.</em>']]){const e=$(selector);e.setAttribute('translate','no');e.innerHTML=language==='fr'?fr:en}$$('[data-language]').forEach(b=>{b.setAttribute('aria-pressed',String(b.dataset.language===language));b.classList.toggle('active',b.dataset.language===language)});document.title=language==='fr'?'Maison Sillon — La musique se garde.':'Maison Sillon — Music is for keeps.';document.querySelector('meta[name="description"]').content=language==='fr'?'Maison Sillon : une collection montréalaise de CD d’occasion. Explorez les albums, composez votre sélection et préparez votre demande sur Messenger.':'Maison Sillon: a Montréal collection of pre-owned CDs. Explore albums, build your selection and prepare your Messenger request.'}
+const languageObserver=new MutationObserver(records=>{for(const r of records){if(r.type==='childList')for(const n of r.addedNodes)translateTree(n);else if(r.type==='characterData')translateTree(r.target)}});
+function enableLanguage(){updateLanguageButton();translateTree(document.body);languageObserver.observe(document.body,{childList:true,subtree:true,characterData:true});$$('[data-language]').forEach(button=>button.onclick=()=>{if(language===button.dataset.language)return;language=button.dataset.language;try{localStorage.setItem('ms-language',language)}catch{}translateTree(document.body);updateLanguageButton();render();updateCart();renderBooklet();$('#price-label').textContent=Number($('#price').value)>=650?(language==='en'?'Any price':'Sans limite'):money($('#price').value);if($('#detail').open&&detailId)openDetail(detailId);translateTree(document.body)})}
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money=n=>new Intl.NumberFormat(language==='en'?'en-CA':'fr-CA',{style:'currency',currency:'CAD'}).format(n);
+const labels={'Rock & Pop':'Rock & pop','Jazz & Blues':'Jazz & blues','Classical':'Classique','Folk & Country':'Folk & country','Ambient':'Ambient'};
+let inventory=[],artworkInventory=[],selectedCategory='',limit=48,cart=[];
+try{cart=JSON.parse(localStorage.getItem('ms-selection')||'[]');if(!Array.isArray(cart))cart=[]}catch{}
+const palettes=['#4b5b50','#a74b36','#314958','#706340','#565166','#795b4a'];
+const isSold=r=>window.MaisonInventory.isSold(r),isAvailable=r=>window.MaisonInventory.isAvailable(r);
+function cover(r,extra=''){const color=palettes[Array.from(r.artist).reduce((a,c)=>a+c.charCodeAt(0),0)%palettes.length];return r.cover?`<div class="cover ${extra} ${isSold(r)?'sold-cover':''}"><img src="${esc(r.cover)}" alt="${language==='en'?'Illustrative artwork:':'Pochette illustrative :'} ${esc(r.title)}" loading="lazy" width="600" height="600">${isSold(r)?'<span class="sold-ribbon">Vendu</span>':''}</div>`:`<div class="cover typographic ${extra} ${isSold(r)?'sold-cover':''}" style="--cover-color:${color}"><span class="sleeve-artist" translate="no">${esc(r.artist)}</span><span class="sleeve-title" translate="no">${esc(r.title)}</span><span class="sleeve-mark">MAISON SILLON / CD</span>${isSold(r)?'<span class="sold-ribbon">Vendu</span>':''}</div>`}
+function shortCondition(s){if(s.startsWith('Near Mint'))return 'NM';if(s.startsWith('Very Good Plus'))return 'VG+';if(s.startsWith('Very Good'))return 'VG';if(s.startsWith('Mint'))return 'M';return s.split('(')[1]?.replace(')','')||s}
+let fulfillment='pickup';try{fulfillment=localStorage.getItem('ms-fulfillment')==='shipping'?'shipping':'pickup'}catch{}
+function cartRows(){return cart.map(id=>inventory.find(r=>r.listing_key===id)).filter(r=>r&&isAvailable(r))}
+function shippingCost(count,mode){return mode==='shipping'&&count>0?(count<=3?10:20):0}
+function cartTotals(){const rows=cartRows(),subtotal=rows.reduce((a,r)=>a+Number(r.price_cad),0),shipping=shippingCost(rows.length,fulfillment);return {rows,subtotal,shipping,total:subtotal+shipping}}
+function updateCart(){cart=cartRows().map(r=>r.listing_key);try{localStorage.setItem('ms-selection',JSON.stringify(cart));localStorage.setItem('ms-fulfillment',fulfillment)}catch{}const {rows:items,subtotal,shipping,total}=cartTotals();$$('.cart-count').forEach(e=>e.textContent=items.length);$('#cart-items').innerHTML=items.length?items.map(r=>`<div class="cart-row"><div class="cart-row-info"><strong translate="no">${esc(r.title)}</strong><p class="artist" translate="no">${esc(r.artist)} × 1</p></div><span class="cart-row-price">${money(r.price_cad)}</span><button class="remove-item" data-remove="${esc(r.listing_key)}" aria-label="Retirer">×</button></div>`).join(''):'<p class="cart-help">Votre panier est vide. Explorez le catalogue et ajoutez vos CD préférés.</p>';$('#subtotal').textContent=money(subtotal);$('#shipping-fee').textContent=money(shipping);$('#total').textContent=money(total);$$('[name="fulfillment"]').forEach(r=>r.checked=r.value===fulfillment);$('#delivery-status').setAttribute('translate','no');$('#delivery-status').textContent=fulfillment==='pickup'?(language==='fr'?'Cueillette gratuite à Montréal':'Free pickup in Montréal'):items.length?(language==='fr'?`Livraison postale : ${money(shipping)}`:`Postal shipping: ${money(shipping)}`):(language==='fr'?'Ajoutez des CD pour calculer les frais.':'Add CDs to calculate shipping.');$('#copy').disabled=!items.length;$('#copy-status').textContent='';$('#order-text').hidden=true;$$('[data-remove]').forEach(b=>b.onclick=()=>{cart=cart.filter(id=>id!==b.dataset.remove);updateCart();render()});translateTree($('#cart'))}
+$$('[name="fulfillment"]').forEach(r=>r.addEventListener('change',()=>{fulfillment=r.value;updateCart()}));
+function openCart(){updateCart();$('#cart').showModal()}
+$$('.basket-trigger').forEach(b=>b.onclick=openCart);$$('dialog .close').forEach(b=>b.onclick=()=>b.closest('dialog').close());$$('dialog').forEach(d=>d.addEventListener('click',e=>{if(e.target===d){const b=d.getBoundingClientRect();if(e.clientX<b.left||e.clientX>b.right||e.clientY<b.top||e.clientY>b.bottom)d.close()}}));
+let detailId=null;function openDetail(id){detailId=id;const r=inventory.find(r=>r.listing_key===id);if(!r)return;$('#detail-content').innerHTML=`<div class="detail-layout">${cover(r)}<div><p class="eyebrow">${esc(labels[r.category]||r.category)} / ${esc(r.format)}</p><h2 translate="no">${esc(r.title)}</h2><p class="artist" translate="no">${esc(r.artist)}</p><dl><div class="spec"><dt>Année</dt><dd>${r.release_year||'Non renseignée'}</dd></div><div class="spec"><dt>Média</dt><dd>${esc(r.media_condition)}</dd></div><div class="spec"><dt>Pochette</dt><dd>${esc(r.sleeve_condition)}</dd></div><div class="spec"><dt>Label</dt><dd>${esc(r.label_name)}</dd></div><div class="spec"><dt>Édition Discogs</dt><dd>${r.format_corrected?'À vérifier':`<a href="https://www.discogs.com/release/${encodeURIComponent(r.release_id)}" target="_blank" rel="noopener">${esc(r.release_id)} ↗</a>`}</dd></div></dl>${r.notes?`<p class="cart-help">${esc(r.notes)}</p>`:''}<div class="detail-price">${money(r.price_cad)}</div><button id="add" class="primary" ${cart.includes(id)||!isAvailable(r)?'disabled':''}>${isSold(r)?'Vendu':!isAvailable(r)?'Indisponible':cart.includes(id)?'Déjà dans votre panier':'Ajouter au panier ↗'}</button><p class="image-note">Prix en dollars canadiens. Disponibilité à confirmer avec le vendeur. La pochette peut illustrer une autre édition.</p></div></div>`;$('#add').onclick=()=>{addToCart(id);openDetail(id)};if(!$('#detail').open)$('#detail').showModal();translateTree($('#detail'))}
+function addToCart(id){const r=inventory.find(r=>r.listing_key===id);if(!r||!isAvailable(r)||cart.includes(id))return;cart.push(id);updateCart();render()}
+function setCategory(c,scroll=false){selectedCategory=c;limit=48;$$('.filter').forEach(b=>b.classList.toggle('active',b.dataset.cat===c));render();if(scroll)goToCatalogue()}
+function render(){const q=$('#search').value.toLocaleLowerCase(),cond=$('#condition').value,max=Number($('#price').value);let rows=inventory.filter(r=>(!selectedCategory||r.category===selectedCategory)&&(!cond||r.media_condition===cond)&&r.price_cad<=max&&`${r.artist} ${r.title}`.toLocaleLowerCase().includes(q));const sort=$('#sort').value;rows.sort((a,b)=>sort==='low'?a.price_cad-b.price_cad:sort==='high'?b.price_cad-a.price_cad:a.artist.localeCompare(b.artist,language)||a.title.localeCompare(b.title,language));$('#result-count').textContent=`${rows.length.toLocaleString('fr-CA')} albums`;$('#grid').innerHTML=rows.slice(0,limit).map(r=>`<article class="card ${isSold(r)?'is-sold':''}"><button class="card-open" data-id="${esc(r.listing_key)}" aria-label="Voir ${esc(r.title)} de ${esc(r.artist)}">${cover(r)}<h3 translate="no">${esc(r.title)}</h3><p class="artist" translate="no">${esc(r.artist)}</p></button><div class="card-bottom"><span>${money(r.price_cad)}</span><div class="card-purchase"><span class="condition-tag" aria-label="${language==='en'?'CD condition':'État du CD'} : ${esc(r.media_condition)}">${esc(shortCondition(r.media_condition))}</span><button class="quick-add" data-add="${esc(r.listing_key)}" ${!isAvailable(r)||cart.includes(r.listing_key)?'disabled':''}>${isSold(r)?'Vendu':!isAvailable(r)?'Indisponible':cart.includes(r.listing_key)?'Ajouté ✓':'Ajouter'}</button></div></div></article>`).join('')||'<p class="empty">Aucun album pour cette recherche. Essayez un autre titre ou élargissez vos filtres.</p>';$$('.card-open').forEach(b=>b.onclick=()=>openDetail(b.dataset.id));$$('[data-add]').forEach(b=>b.onclick=()=>addToCart(b.dataset.add));translateTree($('#grid'));$('#more').hidden=rows.length<=limit;}
+['search','condition','sort'].forEach(id=>$('#'+id).addEventListener(id==='search'?'input':'change',()=>{limit=48;render()}));$('#price').oninput=()=>{$('#price-label').textContent=Number($('#price').value)>=650?'Sans limite':money($('#price').value);limit=48;render()};$('#more').onclick=()=>{limit+=48;render()};$('#reset').onclick=()=>{$('#search').value='';$('#condition').value='';$('#price').value=650;$('#price-label').textContent='Sans limite';setCategory('')};
+function orderText(){const {rows,subtotal,shipping,total}=cartTotals();const postal=$('#postal').value.trim();const delivery=fulfillment==='shipping'?(language==='fr'?'Livraison postale':'Postal shipping'):(language==='fr'?'Cueillette gratuite à Montréal':'Free pickup in Montréal');const listing=rows.map(r=>`• ${r.artist} — ${r.title} × 1 (${language==='fr'?(conditionFrench[r.media_condition]||r.media_condition):r.media_condition}) : ${money(r.price_cad)}${r.format_corrected?'':` [Discogs ${r.release_id}]`}`).join('\n');return language==='fr'?`Bonjour ! Je suis intéressé(e) par ces CD de Maison Sillon :\n\n${listing}\n\nSous-total des CD : ${money(subtotal)}\nMode de remise : ${delivery}\n${postal?`Quartier et code postal : ${postal}\n`:''}Frais de livraison : ${money(shipping)}\nTotal estimé : ${money(total)}\n\nPouvez-vous confirmer leur disponibilité et les modalités de remise ? Merci !`:`Hello! I’m interested in these Maison Sillon CDs:\n\n${listing}\n\nCD subtotal: ${money(subtotal)}\nDelivery method: ${delivery}\n${postal?`Neighbourhood and postal code: ${postal}\n`:''}Shipping fee: ${money(shipping)}\nEstimated total: ${money(total)}\n\nCould you confirm availability and arrange pickup or delivery? Thank you!`}
+$('#copy').onclick=async()=>{const text=orderText();try{await navigator.clipboard.writeText(text);$('#copy-status').textContent='Copié ! Collez votre demande dans Messenger.'}catch{$('#order-text').hidden=false;$('#order-text').value=text;$('#order-text').select();$('#copy-status').textContent='Sélectionnez puis copiez le texte ci-dessous.'}};
+function schedule(){window.MaisonJourney?.redraw()}
+function goToCatalogue(){window.MaisonJourney?.goToCatalogue()}
+async function init(){try{const responses=await Promise.all([fetch('inventory.json'),fetch('featured.json')]);if(responses.some(r=>!r.ok))throw Error();inventory=await responses[0].json();artworkInventory=inventory;const ids=await responses[1].json();const art=ids.map(id=>inventory.find(r=>r.listing_key===id)).filter(Boolean);let hero=art.find(r=>r.artist==='Diana Krall')||art[0]||inventory[0];$('#hero-cover').src=hero.cover||'';if(!hero.cover){$('#hero-cover').outerHTML=cover(hero)}const wallRows=chooseWall(inventory,hero);renderBooklet(window.MaisonSelection.getRandomSelections(inventory,3));$('.wall').innerHTML=Array.from({length:16},(_,i)=>`<div class="wall-cover">${cover(wallRows[i%wallRows.length])}</div>`).join('');const cats=Object.keys(labels).filter(c=>inventory.some(r=>r.category===c));$('#filters').innerHTML=['',...cats].map(c=>`<button class="filter ${c?'':'active'}" data-cat="${esc(c)}">${labels[c]||'Toute la collection'}<small>${inventory.filter(r=>!c||r.category===c).length}</small></button>`).join('');$$('.filter').forEach(b=>b.onclick=()=>setCategory(b.dataset.cat));[...new Set(inventory.map(r=>r.media_condition))].sort().forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;$('#condition').append(o)});$('#inventory-count').textContent=`${inventory.length.toLocaleString('fr-CA')} CD DANS LA COLLECTION`;cart=cart.filter(id=>inventory.some(r=>r.listing_key===id&&isAvailable(r)));updateCart();render();window.MaisonJourney.setup();refreshStock();setInterval(refreshStock,60000)}catch(e){$('#grid').innerHTML='<p class="empty">Le catalogue n’a pas pu se charger. Rechargez la page pour réessayer.</p>';console.error('Catalogue',e)}}init();
 
-const copy = {
-  fr: {
-    eyebrow:"COLLECTION MONTRÉALAISE", heroTitle:"Une collection choisie,<br>à écouter autrement.", heroBody:"Ouvrez le boîtier pour parcourir les sélections, puis explorez le catalogue complet.",
-    browse:"Explorer le catalogue", scroll:"Ouvrir la sélection", openTracklist:"Voir la sélection", tracklistSubtitle:"MONTRÉAL, QC • SÉLECTIONS", tracklistLabel:"PISTES / SÉLECTIONS", basket:"Panier", itemsShort:"articles", viewBasket:"Voir le panier", fullCatalog:"VOIR LE CATALOGUE COMPLET", featuredEyebrow:"PIÈCES EN VEDETTE", featuredTitle:"Sur les étagères", featuredBody:"Albums sélectionnés selon leur prix, leur disponibilité et leur intérêt Discogs. Touchez une pochette pour l’examiner.",
-    catalogueEyebrow:"INVENTAIRE COMPLET", catalogueTitle:"Le catalogue", search:"Rechercher", searchPlaceholder:"Artiste ou titre", category:"Catégorie", condition:"État du média", price:"Prix maximum", all:"Toutes",
-    admin:"Administration", sold:"VENDU", add:"Ajouter", remove:"Retirer", cartTitle:"Votre panier", fulfillment:"Livraison et cueillette", pickup:"Cueillette gratuite à Montréal", shipping:"Livraison postale", neighbourhood:"Quartier et code postal",
-    total:"Total estimé", copyOrder:"Copier la demande pour Messenger", empty:"Votre panier est vide.", adminTitle:"Administration Maison Sillon", adminBody:"Entrez votre mot de passe pour modifier les prix, quantités, images et disponibilités.",
-    password:"Mot de passe", signIn:"Ouvrir la session", signOut:"Fermer la session", turn:"Voir le verso", media:"État média", sleeve:"Pochette", label:"Étiquette", format:"Format", year:"Année", available:"Disponible", unavailable:"Vendu",
-    copied:"Copié — collez-le dans Messenger !", shippingSmall:"10 $ pour 1–2 CD; 20 $ pour 3 CD ou plus.", items:"albums affichés", showMore:"Afficher plus", edit:"Modifier", addListing:"Ajouter un album", save:"Enregistrer", cancel:"Annuler",
-    editorTitle:"Modifier l’album", newTitle:"Ajouter un album", quantity:"Quantité", imageUrl:"URL de l’image HD", notes:"Notes", releaseId:"ID Discogs", saved:"Modifications enregistrées.", loginError:"Mot de passe incorrect.", adminOpen:"Session administrateur ouverte.",
-    discogsNotice:"Les images et données Discogs sont utilisées conformément à leurs conditions d’utilisation. Discogs n’est ni affilié à Maison Sillon ni responsable de ce catalogue.", roomInspect:"Touchez une pièce en vedette pour l’examiner"
-  },
-  en: {
-    eyebrow:"MONTREAL COLLECTION", heroTitle:"A considered collection,<br>heard differently.", heroBody:"Open the jewel case to browse selections, then explore the complete catalogue.",
-    browse:"Browse the catalogue", scroll:"Open selections", openTracklist:"View selections", tracklistSubtitle:"MONTRÉAL, QC • TRACKLIST SELECTIONS", tracklistLabel:"TRACKLIST / SELECTIONS", basket:"Basket", itemsShort:"items", viewBasket:"View basket", fullCatalog:"SEE FULL CATALOG", featuredEyebrow:"FEATURED SELECTION", featuredTitle:"On the shelves", featuredBody:"Albums selected for price, availability and Discogs interest. Tap a cover to inspect it.",
-    catalogueEyebrow:"COMPLETE INVENTORY", catalogueTitle:"The catalogue", search:"Search", searchPlaceholder:"Artist or title", category:"Category", condition:"Media condition", price:"Maximum price", all:"All",
-    admin:"Administration", sold:"SOLD", add:"Add", remove:"Remove", cartTitle:"Your basket", fulfillment:"Delivery & pickup", pickup:"Free pickup in Montréal", shipping:"Postal shipping", neighbourhood:"Neighbourhood and postal code",
-    total:"Estimated total", copyOrder:"Copy request for Messenger", empty:"Your basket is empty.", adminTitle:"Maison Sillon administration", adminBody:"Enter your password to edit prices, quantities, images and availability.",
-    password:"Password", signIn:"Open session", signOut:"Sign out", turn:"View reverse", media:"Media condition", sleeve:"Sleeve condition", label:"Label", format:"Format", year:"Year", available:"Available", unavailable:"Sold",
-    copied:"Copied — paste it into Messenger!", shippingSmall:"$10 for 1–2 CDs; $20 for 3+ CDs.", items:"albums shown", showMore:"Show more", edit:"Edit", addListing:"Add an album", save:"Save", cancel:"Cancel",
-    editorTitle:"Edit album", newTitle:"Add an album", quantity:"Quantity", imageUrl:"HD image URL", notes:"Notes", releaseId:"Discogs ID", saved:"Changes saved.", loginError:"Incorrect password.", adminOpen:"Admin session is open.",
-    discogsNotice:"Discogs images and data are used under its terms of use. Discogs is not affiliated with Maison Sillon and is not responsible for this catalogue.", roomInspect:"Tap a featured piece to inspect it"
-  }
-};
+enableLanguage();
 
-const t = key => copy[state.language][key] || key;
-const money = value => new Intl.NumberFormat(state.language === "fr" ? "fr-CA" : "en-CA", { style:"currency", currency:"CAD" }).format(Number(value || 0));
-const escape = value => String(value ?? "").replace(/[&<>"']/g, character => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[character]));
-const idOf = release => release.listing_key || release.release_id;
-const placeholder = text => `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800"><rect width="100%" height="100%" fill="#5c3926"/><circle cx="400" cy="400" r="280" fill="#25140d"/><circle cx="400" cy="400" r="70" fill="#c69a61"/><text x="400" y="715" text-anchor="middle" fill="#f3e5d1" font-family="Georgia" font-size="34">${escape(text).slice(0,28)}</text></svg>`)}`;
+let bookletSelection=[];
+function renderBooklet(selection){if(selection)bookletSelection=selection;$('#booklet-albums').innerHTML=bookletSelection.map(r=>`<button class="album-mini-card" data-booklet-id="${esc(r.listing_key)}" aria-label="Voir ${esc(r.title)} de ${esc(r.artist)}">${cover(r)}<strong translate="no">${esc(r.title)}</strong><span class="mini-artist" translate="no">${esc(r.artist)}</span><span class="mini-price">${money(r.price_cad)}</span></button>`).join('');$$('[data-booklet-id]').forEach(b=>b.onclick=()=>openDetail(b.dataset.bookletId));translateTree($('#booklet-albums'));schedule()}
+$('.scroll-down-prompt').onclick=goToCatalogue;
+$$('a[href="#catalogue"]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();goToCatalogue()}));
 
-const samples = [
-  ["11164230","Michael Bublé","Michael Bublé",19,"Jazz & Blues","Near Mint (NM or M-)","Very Good Plus (VG+)","143 Records, Reprise Records","CD, Album",2003,1,"available"],
-  ["4207554","Joe Jackson","Stepping Out — The Very Best Of Joe Jackson",14,"Rock & Pop","Near Mint (NM or M-)","Near Mint (NM or M-)","A&M Records","CD, Comp",1989,1,"available"],
-  ["5746001","Diana Krall","Live In Paris",25,"Jazz & Blues","Near Mint (NM or M-)","Near Mint (NM or M-)","Verve Records","CD, Album",2002,1,"available"],
-  ["5487348","Ludwig van Beethoven","9 Symphonien",23,"Classical","Near Mint (NM or M-)","Near Mint (NM or M-)","Deutsche Grammophon","5xCD, Box",1995,1,"available"],
-  ["2344371","KISS","Smashes, Thrashes & Hits",17,"Rock & Pop","Very Good (VG)","Very Good (VG)","Mercury","CD, Comp",1988,1,"available"],
-  ["3896167","Alabama","Greatest Hits Vol. III",16,"Folk & Country","Near Mint (NM or M-)","Near Mint (NM or M-)","RCA","CD, Comp",1994,1,"available"]
-].map(([release_id,artist,title,price_cad,category,media_condition,sleeve_condition,label_name,format,release_year,quantity,status]) => ({release_id,listing_key:release_id,artist,title,price_cad,category,media_condition,sleeve_condition,label_name,format,release_year,quantity,status,popularity_score:0}));
-
-function applyLanguage() {
-  document.documentElement.lang = state.language;
-  document.querySelectorAll("[data-i18n]").forEach(element => {
-    const value = t(element.dataset.i18n);
-    if (value.includes("<br>")) element.innerHTML = value; else element.textContent = value;
-  });
-  document.querySelectorAll("[data-i18n-placeholder]").forEach(element => element.placeholder = t(element.dataset.i18nPlaceholder));
-  document.querySelector("#language").textContent = state.language === "fr" ? "FR / EN" : "EN / FR";
-  renderFilters(); renderHeroGrid(); renderHeroTracklist(); renderFeatured(); renderCatalogue(); renderCart();
+let refreshingStock=false;
+async function refreshStock(){if(refreshingStock)return;refreshingStock=true;try{inventory=await window.MaisonInventory.refresh(artworkInventory);refreshFilters();updateCart();render();bookletSelection=bookletSelection.map(r=>inventory.find(x=>x.listing_key===r.listing_key)).filter(isAvailable);if(bookletSelection.length<3)bookletSelection=window.MaisonSelection.getRandomSelections(inventory,3);renderBooklet();if($('#detail').open&&detailId){if(inventory.some(r=>r.listing_key===detailId))openDetail(detailId);else $('#detail').close()}}catch{ /* Retain the last usable catalogue when offline. */ }finally{refreshingStock=false}}
+window.addEventListener('focus',refreshStock);
+function chooseWall(rows,hero){
+ const pool=rows.filter(r=>r.cover&&isAvailable(r)&&r.release_id!==hero.release_id),picked=[],covers=new Set();
+ function pick(match){const r=pool.find(r=>match(r)&&!covers.has(r.cover));if(r){picked.push(r);covers.add(r.cover)}}
+ pick(r=>r.artist==='Bruno Mars');
+ pick(r=>r.title.includes('Goldberg Variations'));
+ pick(r=>r.title.includes('Aladdin'));
+ pick(r=>r.artist==='Norah Jones');
+ pick(r=>r.title.includes('Twin Peaks'));
+ pick(r=>r.category==='Folk & Country');
+ pick(r=>r.category==='Ambient');
+ for(const artist of ['The Beatles','Radiohead','Bob Marley & The Wailers','Daft Punk','Céline Dion','Johnny Cash','Adele (3)','AIR','Alanis Morissette'])pick(r=>r.artist===artist);
+ for(const r of pool){if(picked.length>=16)break;if(!covers.has(r.cover)){picked.push(r);covers.add(r.cover)}}
+ return picked;
 }
 
-async function loadInventory() {
-  try {
-    const response = await fetch("/api/inventory?max=2000");
-    if (!response.ok) throw new Error("Inventory unavailable");
-    const data = await response.json();
-    state.inventory = data.releases?.length ? data.releases : samples;
-  } catch { state.inventory = samples; }
-  applyLanguage();
+function refreshFilters(){
+ const cats=[...new Set(inventory.map(r=>r.category))].filter(Boolean);
+ if(selectedCategory&&!cats.includes(selectedCategory))selectedCategory='';
+ $('#filters').innerHTML=['',...cats].map(c=>`<button class="filter ${selectedCategory===c?'active':''}" data-cat="${esc(c)}">${labels[c]||c||'Toute la collection'}<small>${inventory.filter(r=>!c||r.category===c).length}</small></button>`).join('');
+ $$('.filter').forEach(b=>b.onclick=()=>setCategory(b.dataset.cat));
+ const condition=$('#condition').value,conditions=[...new Set(inventory.map(r=>r.media_condition))].filter(Boolean).sort();
+ $('#condition').innerHTML='<option value="">Tous les états</option>'+conditions.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
+ $('#condition').value=conditions.includes(condition)?condition:'';
+ $('#inventory-count').textContent=`${inventory.length.toLocaleString('fr-CA')} CD DANS LA COLLECTION`;
+ translateTree($('#filters'));translateTree($('#condition'));translateTree($('#inventory-count'));
 }
-
-function createCard(release) {
-  const node = document.querySelector("#card-template").content.firstElementChild.cloneNode(true);
-  const image = node.querySelector("img");
-  image.src = release.custom_image_url || release.discogs_image_url || placeholder(release.title);
-  image.alt = `${release.artist} — ${release.title}`;
-  image.onerror = () => { image.onerror = null; image.src = placeholder(release.title); };
-  node.querySelector("h3").textContent = release.title;
-  node.querySelector(".artist").textContent = release.artist;
-  node.querySelector(".card-price").textContent = money(release.price_cad);
-  const sold = release.status === "sold" || Number(release.quantity) < 1;
-  if (sold) node.classList.add("is-sold");
-  node.querySelector(".cover-button").onclick = () => openRecord(release);
-  node.querySelector(".add").onclick = () => addToCart(idOf(release));
-  const edit = node.querySelector(".admin-edit");
-  edit.hidden = !state.admin;
-  edit.onclick = () => openEditor(release);
-  return node;
-}
-
-function renderFeatured() {
-  const target = document.querySelector("#featured-grid"); target.innerHTML = "";
-  const categories = [...new Set(state.inventory.map(release => release.category))];
-  const featured = categories.flatMap(category => state.inventory.filter(release => release.category === category && release.status !== "sold").sort((a,b) => b.popularity_score - a.popularity_score || b.price_cad - a.price_cad).slice(0,2)).slice(0,10);
-  (featured.length ? featured : state.inventory.slice(0,6)).forEach(release => target.append(createCard(release)));
-}
-
-function renderHeroGrid() {
-  const grid = document.querySelector("#album-grid");
-  const heroCover = document.querySelector("#hero-cover");
-  if (!grid || !heroCover) return;
-  const available = state.inventory.filter(release => release.status !== "sold" && Number(release.quantity) > 0);
-  const ranked = [...available].sort((a, b) => b.popularity_score - a.popularity_score || b.price_cad - a.price_cad);
-  const hero = ranked[0] || state.inventory[0];
-  if (!hero) return;
-  const imageFor = release => release.custom_image_url || release.discogs_image_url || placeholder(release.title);
-  heroCover.src = imageFor(hero); heroCover.alt = `${hero.artist} — ${hero.title}`;
-  heroCover.onerror = () => { heroCover.onerror = null; heroCover.src = placeholder(hero.title); };
-  document.querySelector("#hero-artist").textContent = hero.artist;
-  document.querySelector("#hero-title").textContent = hero.title;
-  const deco = ranked.filter(release => idOf(release) !== idOf(hero)).slice(0, 14);
-  grid.innerHTML = deco.map(release => `<span class="flat-deco"><img src="${escape(imageFor(release))}" alt=""></span>`).join("");
-}
-
-let audioContext;
-function playTactileClickSound() {
-  try {
-    audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
-    if (audioContext.state === "suspended") audioContext.resume();
-    const oscillator = audioContext.createOscillator();
-    const gain = audioContext.createGain();
-    oscillator.type = "triangle";
-    oscillator.frequency.setValueAtTime(120, audioContext.currentTime);
-    oscillator.frequency.exponentialRampToValueAtTime(16, audioContext.currentTime + .045);
-    gain.gain.setValueAtTime(.025, audioContext.currentTime);
-    gain.gain.exponentialRampToValueAtTime(.001, audioContext.currentTime + .05);
-    oscillator.connect(gain).connect(audioContext.destination);
-    oscillator.start(); oscillator.stop(audioContext.currentTime + .055);
-  } catch { /* Audio is an optional tactile enhancement. */ }
-}
-
-function renderHeroTracklist() {
-  const menu = document.querySelector("#tracklist-menu");
-  if (!menu) return;
-  const preferred = ["Rock & Pop", "Classical", "Jazz & Blues", "Folk & Country", "Ambient"];
-  const available = new Set(state.inventory.map(release => release.category).filter(Boolean));
-  const categories = [...preferred.filter(category => available.has(category)), ...[...available].filter(category => !preferred.includes(category)).sort()].slice(0, 4);
-  const rows = categories.map((category, index) => {
-    const count = state.inventory.filter(release => release.category === category && release.status !== "sold" && Number(release.quantity) > 0).length;
-    return `<li><button class="track-item" type="button" data-genre="${escape(category)}"><span class="track-num">${String(index + 1).padStart(2, "0")}</span><span class="track-name">${escape(category)}</span><span class="track-dots"></span><span class="track-duration">(${String(count).padStart(2, "0")})</span></button></li>`;
-  }).join("");
-  menu.innerHTML = `${rows}<li><button class="track-item full-catalog-trigger" id="view-all-tracks" type="button"><span class="track-num">${String(categories.length + 1).padStart(2, "0")}</span><span class="track-name">${escape(t("fullCatalog"))}</span><span class="track-arrow">──►</span></button></li>`;
-  menu.querySelectorAll("[data-genre]").forEach(button => {
-    button.addEventListener("pointerenter", playTactileClickSound);
-    button.addEventListener("focus", playTactileClickSound);
-    button.onclick = () => selectHeroCategory(button.dataset.genre);
-  });
-  menu.querySelector("#view-all-tracks").onclick = () => selectHeroCategory("");
-}
-
-function selectHeroCategory(category) {
-  playTactileClickSound();
-  const filter = document.querySelector("#category-filter");
-  filter.value = category;
-  state.visibleCount = 80;
-  renderCatalogue();
-  document.querySelector("#catalogue").scrollIntoView({ behavior:"smooth", block:"start" });
-}
-
-function renderFilters() {
-  const fill = (selector, values) => {
-    const select = document.querySelector(selector); const current = select.value;
-    select.innerHTML = `<option value="">${t("all")}</option>` + values.map(value => `<option value="${escape(value)}">${escape(value)}</option>`).join("");
-    select.value = current;
-  };
-  fill("#category-filter", [...new Set(state.inventory.map(release => release.category))].filter(Boolean).sort());
-  fill("#condition-filter", [...new Set(state.inventory.map(release => release.media_condition))].filter(Boolean).sort());
-  const priceInput = document.querySelector("#price-filter");
-  const highestPrice = Math.ceil(Math.max(1, ...state.inventory.map(release => Number(release.price_cad) || 0)));
-  priceInput.max = highestPrice;
-  if (!state.priceLimitInitialized) { priceInput.value = highestPrice; state.priceLimitInitialized = true; }
-}
-
-function filteredInventory() {
-  const query = document.querySelector("#search").value.toLowerCase().trim();
-  const category = document.querySelector("#category-filter").value;
-  const condition = document.querySelector("#condition-filter").value;
-  const max = Number(document.querySelector("#price-filter").value);
-  return state.inventory.filter(release => (!query || `${release.artist} ${release.title}`.toLowerCase().includes(query)) && (!category || release.category === category) && (!condition || release.media_condition === condition) && Number(release.price_cad) <= max);
-}
-
-function renderCatalogue() {
-  const releases = filteredInventory(); const target = document.querySelector("#catalogue-grid"); target.innerHTML = "";
-  releases.slice(0, state.visibleCount).forEach(release => target.append(createCard(release)));
-  document.querySelector("#catalogue-count").textContent = `${releases.length} ${t("items")}`;
-  document.querySelector("#price-output").textContent = money(document.querySelector("#price-filter").value);
-  const more = document.querySelector("#show-more");
-  more.hidden = releases.length <= state.visibleCount;
-  more.textContent = t("showMore");
-}
-
-function openRecord(release) {
-  const image = release.custom_image_url || release.discogs_image_url || placeholder(release.title);
-  document.querySelector("#record-content").innerHTML = `<div class="record-stage"><div class="record-object" id="record-object"><div class="record-face"><img src="${escape(image)}" alt="${escape(release.title)}"></div><div class="record-face record-back"><p>${escape(release.artist)}<br><br>${escape(release.title)}<br><br>${escape(release.format || "CD")}</p></div></div></div><div class="record-info"><p class="eyebrow">${escape(release.category || "")}</p><h2>${escape(release.title)}</h2><p>${escape(release.artist)}</p><p class="card-price">${money(release.price_cad)}</p><div class="record-meta"><div>${t("format")}: ${escape(release.format || "—")}</div><div>${t("label")}: ${escape(release.label_name || "—")}</div><div>${t("year")}: ${escape(release.release_year || "—")}</div><div>${t("media")}: ${escape(release.media_condition || "—")}</div><div>${t("sleeve")}: ${escape(release.sleeve_condition || "—")}</div></div><div class="record-actions"><button id="flip-record">${t("turn")}</button><button class="primary" id="record-add">${t("add")}</button>${state.admin ? `<button id="record-edit">${t("edit")}</button>` : ""}</div></div>`;
-  document.querySelector("#flip-record").onclick = () => document.querySelector("#record-object").classList.toggle("flipped");
-  document.querySelector("#record-add").onclick = () => { addToCart(idOf(release)); document.querySelector("#record-dialog").close(); };
-  if (state.admin) document.querySelector("#record-edit").onclick = () => { document.querySelector("#record-dialog").close(); openEditor(release); };
-  document.querySelector("#record-dialog").showModal();
-}
-
-function addToCart(id) {
-  const release = state.inventory.find(item => idOf(item) === id);
-  if (!release || release.status === "sold" || Number(release.quantity) < 1) return;
-  const existing = state.cart.find(item => item.id === id);
-  if (existing) existing.quantity = Math.min(existing.quantity + 1, Number(release.quantity)); else state.cart.push({ id, quantity: 1 });
-  persistCart(); renderCart();
-}
-function persistCart() { localStorage.setItem("maison-cart", JSON.stringify(state.cart)); }
-function cartReleases() { return state.cart.map(item => ({...item, release: state.inventory.find(release => idOf(release) === item.id)})).filter(item => item.release); }
-function renderCart() {
-  const items = cartReleases();
-  document.querySelector("#cart-count").textContent = items.reduce((number,item) => number + item.quantity, 0);
-  const linerCartCount = document.querySelector("#liner-cart-count");
-  if (linerCartCount) linerCartCount.textContent = items.reduce((number,item) => number + item.quantity, 0);
-  const target = document.querySelector("#cart-items"); target.innerHTML = items.length ? "" : `<p>${t("empty")}</p>`;
-  items.forEach(({release,quantity}) => {
-    const row = document.createElement("div"); row.className = "cart-row";
-    row.innerHTML = `<div><strong>${escape(release.title)}</strong><p>${escape(release.artist)} × ${quantity}</p></div><strong>${money(release.price_cad * quantity)}</strong><button aria-label="${t("remove")}">×</button>`;
-    row.querySelector("button").onclick = () => { state.cart = state.cart.filter(item => item.id !== idOf(release)); persistCart(); renderCart(); };
-    target.append(row);
-  });
-  const shipping = document.querySelector('input[name="delivery"]:checked')?.value || "pickup";
-  const subtotal = items.reduce((number,{release,quantity}) => number + Number(release.price_cad) * quantity, 0);
-  const fee = shipping === "shipping" ? (items.reduce((number,item) => number + item.quantity, 0) <= 2 ? 10 : 20) : 0;
-  document.querySelector("#shipping-note").textContent = shipping === "shipping" ? t("shippingSmall") : t("pickup");
-  document.querySelector("#cart-total").textContent = money(subtotal + fee);
-}
-
-function copyOrder() {
-  const items = cartReleases(); const shipping = document.querySelector('input[name="delivery"]:checked').value;
-  const count = items.reduce((number,item) => number + item.quantity, 0);
-  const subtotal = items.reduce((number,{release,quantity}) => number + Number(release.price_cad) * quantity, 0);
-  const fee = shipping === "shipping" ? (count <= 2 ? 10 : 20) : 0;
-  const location = document.querySelector("#neighbourhood").value.trim();
-  const delivery = shipping === "pickup" ? t("pickup") : `${t("shipping")} (${money(fee)})${location ? ` — ${location}` : ""}`;
-  const text = `Maison Sillon\n\n${items.map(({release,quantity}) => `• ${release.artist} — ${release.title} × ${quantity}: ${money(release.price_cad * quantity)}`).join("\n")}\n\n${t("fulfillment")}: ${delivery}\n${t("total")}: ${money(subtotal + fee)}`;
-  navigator.clipboard.writeText(text).then(() => { const button = document.querySelector("#copy-order"); button.textContent = t("copied"); setTimeout(() => button.textContent = t("copyOrder"), 1800); });
-}
-
-function openEditor(release = null) {
-  if (!state.admin) return;
-  const form = document.querySelector("#editor-form");
-  form.reset(); form.dataset.listingKey = release ? idOf(release) : "";
-  document.querySelector("#editor-heading").textContent = release ? t("editorTitle") : t("newTitle");
-  const values = release || { quantity:1, status:"available", format:"CD", price_cad:"", category:"Rock & Pop" };
-  ["artist","title","release_id","label_name","format","release_year","media_condition","sleeve_condition","notes","price_cad","quantity","status","category","custom_image_url"].forEach(name => {
-    const input = form.elements.namedItem(name); if (input) input.value = values[name] ?? "";
-  });
-  document.querySelector("#editor-dialog").showModal();
-}
-
-async function saveEditor(event) {
-  event.preventDefault();
-  const form = event.currentTarget; const input = Object.fromEntries(new FormData(form).entries());
-  input.price_cad = Number(input.price_cad); input.quantity = Number(input.quantity); input.release_year = input.release_year ? Number(input.release_year) : null;
-  const editing = Boolean(form.dataset.listingKey);
-  const response = await fetch(editing ? `/api/admin/releases/${encodeURIComponent(form.dataset.listingKey)}` : "/api/admin/releases", {
-    method: editing ? "PATCH" : "POST", headers: { "Content-Type":"application/json" }, body: JSON.stringify(input)
-  });
-  const result = await response.json().catch(() => ({}));
-  const status = document.querySelector("#editor-status");
-  if (!response.ok) { status.textContent = result.error || "Unable to save."; return; }
-  status.textContent = t("saved"); document.querySelector("#editor-dialog").close();
-  await loadInventory();
-}
-
-async function updateAdminSession() {
-  try { state.admin = Boolean((await (await fetch("/api/admin/session")).json()).ok); } catch { state.admin = false; }
-}
-
-function initJewelJourney() {
-  const wrapper = document.querySelector("#scroll-wrapper");
-  const sticky = document.querySelector("#sticky-viewport");
-  const hero = document.querySelector("#hero-album");
-  const inner = document.querySelector("#hero-card-inner");
-  const grid = document.querySelector("#album-grid");
-  const decorations = grid ? [...grid.querySelectorAll(".flat-deco")] : [];
-  const intro = document.querySelector(".entrance-copy");
-  const note = document.querySelector(".scroll-note");
-  const navigation = document.querySelector("#archive-navigation");
-  const header = document.querySelector(".topbar");
-  if (!wrapper || !sticky || !hero || !inner || !grid || !navigation) return;
-
-  const setNavigation = active => {
-    navigation.inert = !active;
-    navigation.setAttribute("aria-hidden", String(!active));
-    navigation.style.pointerEvents = active ? "auto" : "none";
-    sticky.classList.toggle("shop-revealed", active);
-  };
-  const updateHeader = () => header.classList.toggle("scrolled", window.scrollY > 50);
-  window.addEventListener("scroll", updateHeader, { passive:true });
-  updateHeader();
-
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    setNavigation(true);
-    return;
-  }
-
-  if (window.gsap && window.ScrollTrigger) {
-    const { gsap, ScrollTrigger } = window;
-    gsap.registerPlugin(ScrollTrigger);
-    gsap.set(hero, { xPercent:-50, yPercent:-50, scale:1 });
-    gsap.set(inner, { rotationY:0 });
-    gsap.set(navigation, { autoAlpha:0, pointerEvents:"none" });
-    setNavigation(false);
-
-    const coverScale = () => {
-      const width = Math.max(hero.offsetWidth, 1);
-      const height = Math.max(hero.offsetHeight, 1);
-      return Math.max(window.innerWidth / width, window.innerHeight / height) * 1.02;
-    };
-    const timeline = gsap.timeline({
-      defaults: { ease:"none" },
-      scrollTrigger: {
-        trigger: wrapper,
-        start: "top top",
-        end: () => `+=${window.innerHeight * 3.5}`,
-        pin: sticky,
-        pinSpacing: true,
-        scrub: 1,
-        anticipatePin: 1,
-        invalidateOnRefresh: true,
-        onUpdate: trigger => setNavigation(trigger.progress >= .92)
-      }
-    });
-    timeline.to({}, { duration:15 })
-      .to(decorations, {
-        opacity:0,
-        scale:.85,
-        y:index => index % 2 ? 36 : -36,
-        stagger:{ each:.18, from:"center" },
-        duration:20
-      })
-      .to([intro, note], { opacity:0, y:-22, duration:12 }, "<")
-      .to(hero, { scale:coverScale, duration:30, ease:"power2.inOut" })
-      .to(inner, { rotationY:180, duration:25, ease:"power2.inOut" })
-      .to(navigation, { autoAlpha:1, duration:5 })
-      .to({}, { duration:5 });
-
-    jewelTrigger = timeline.scrollTrigger;
-    window.addEventListener("load", () => ScrollTrigger.refresh(), { once:true });
-    return;
-  }
-
-  // A no-library safety path keeps the core interaction usable if the CDN is unavailable.
-  document.documentElement.classList.add("native-scroll");
-  const updateFallback = () => {
-    const travel = Math.max(1, wrapper.offsetHeight - window.innerHeight);
-    const progress = Math.min(Math.max(-wrapper.getBoundingClientRect().top / travel, 0), 1);
-    const zoom = Math.min(progress / .58, 1);
-    const flip = Math.min(Math.max((progress - .62) / .25, 0), 1);
-    const scale = 1 + Math.max(0, Math.max(window.innerWidth / hero.offsetWidth, window.innerHeight / hero.offsetHeight) * 1.02 - 1) * zoom;
-    hero.style.transform = `translate(-50%, -50%) scale(${scale})`;
-    inner.style.transform = `rotateY(${flip * 180}deg)`;
-    grid.style.opacity = String(1 - zoom);
-    grid.style.transform = `scale(${1 - zoom * .18})`;
-    intro.style.opacity = String(1 - zoom);
-    intro.style.transform = `translateY(${zoom * -24}px)`;
-    note.style.opacity = String(1 - zoom * 1.5);
-    navigation.style.opacity = String(flip);
-    navigation.style.visibility = flip > .96 ? "visible" : "hidden";
-    setNavigation(flip > .96);
-  };
-  window.addEventListener("scroll", updateFallback, { passive:true });
-  window.addEventListener("resize", updateFallback, { passive:true });
-  updateFallback();
-}
-
-function setup() {
-  document.querySelector("#language").onclick = () => { state.language = state.language === "fr" ? "en" : "fr"; localStorage.setItem("maison-language", state.language); applyLanguage(); };
-  document.querySelectorAll("[data-close]").forEach(button => button.onclick = () => document.querySelector(`#${button.dataset.close}`).close());
-  document.querySelector("#open-cart").onclick = () => { renderCart(); document.querySelector("#cart-dialog").showModal(); };
-  document.querySelector("#liner-cart").onclick = () => { renderCart(); document.querySelector("#cart-dialog").showModal(); };
-  const revealTracklist = () => {
-    playTactileClickSound();
-    const wrapper = document.querySelector("#scroll-wrapper");
-    const target = jewelTrigger ? jewelTrigger.start + (jewelTrigger.end - jewelTrigger.start) * .94 : wrapper.offsetTop + (wrapper.offsetHeight - window.innerHeight) * .88;
-    window.scrollTo({ top: target, behavior:"smooth" });
-  };
-  document.querySelector("#flip-hero").onclick = revealTracklist;
-  document.querySelector(".case-turn-button").onclick = revealTracklist;
-  document.querySelectorAll("#search,#category-filter,#condition-filter,#price-filter").forEach(element => element.addEventListener("input", () => { state.visibleCount = 80; renderCatalogue(); }));
-  document.querySelectorAll('input[name="delivery"]').forEach(element => element.onchange = () => { document.querySelector("#neighbourhood-row").hidden = element.value !== "shipping" || !element.checked; renderCart(); });
-  document.querySelector("#copy-order").onclick = copyOrder;
-  document.querySelector("#show-more").onclick = () => { state.visibleCount += 80; renderCatalogue(); };
-  document.querySelector("#admin-launch").onclick = () => document.querySelector("#admin-dialog").showModal();
-  document.querySelector("#admin-login").onclick = async () => {
-    const password = document.querySelector("#admin-password").value;
-    const response = await fetch("/api/admin/login", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ password }) });
-    document.querySelector("#admin-status").textContent = response.ok ? t("adminOpen") : t("loginError");
-    if (response.ok) { state.admin = true; document.querySelector("#admin-password").value = ""; renderFeatured(); renderCatalogue(); document.querySelector("#admin-tools").hidden = false; }
-  };
-  document.querySelector("#admin-add").onclick = () => { document.querySelector("#admin-dialog").close(); openEditor(); };
-  document.querySelector("#admin-logout").onclick = async () => { await fetch("/api/admin/logout", { method:"POST" }); state.admin = false; document.querySelector("#admin-tools").hidden = true; renderFeatured(); renderCatalogue(); };
-  document.querySelector("#editor-form").addEventListener("submit", saveEditor);
-  initJewelJourney();
-  updateAdminSession().then(() => { if (state.admin) document.querySelector("#admin-tools").hidden = false; loadInventory(); });
-}
-setup();
