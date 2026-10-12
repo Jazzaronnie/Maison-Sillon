@@ -38,14 +38,15 @@
               <div class="case-front-copy"><span id="hero-artist">CURATED AUDIO VAULT</span><strong id="hero-title">MONTRÉAL, QC</strong></div>
               <button class="case-turn-button" type="button" data-i18n="openTracklist">Voir la sélection</button>
             </div>
-            <div class="card-back">
-              <div class="cd-liner-sticker">
-                <div class="sticker-header"><h2>MAISON SILLON</h2><p data-i18n="tracklistSubtitle">MONTRÉAL, QC • SÉLECTIONS</p></div>
-                <p class="tracklist-label" data-i18n="tracklistLabel">PISTES / SÉLECTIONS</p>
-                <ul class="tracklist-menu" id="tracklist-menu" aria-live="polite"></ul>
-                <div class="mini-basket-footer"><span>💿 <span data-i18n="basket">Panier</span>: <strong id="liner-cart-count">0</strong> <span data-i18n="itemsShort">articles</span></span><button class="checkout-slide-btn" id="liner-cart" type="button" data-i18n="viewBasket">Voir le panier</button></div>
-              </div>
-            </div>
+            <div class="card-back" aria-hidden="true"></div>
+          </div>
+        </section>
+        <section class="archive-navigation" id="archive-navigation" aria-label="Maison Sillon tracklist" aria-hidden="true" inert>
+          <div class="cd-liner-sticker">
+            <div class="sticker-header"><h2>MAISON SILLON</h2><p data-i18n="tracklistSubtitle">MONTRÉAL, QC • SÉLECTIONS</p></div>
+            <p class="tracklist-label" data-i18n="tracklistLabel">PISTES / SÉLECTIONS</p>
+            <ul class="tracklist-menu" id="tracklist-menu" aria-live="polite"></ul>
+            <div class="mini-basket-footer"><span>💿 <span data-i18n="basket">Panier</span>: <strong id="liner-cart-count">0</strong> <span data-i18n="itemsShort">articles</span></span><button class="checkout-slide-btn" id="liner-cart" type="button" data-i18n="viewBasket">Voir le panier</button></div>
           </div>
         </section>
           <div class="scroll-note" data-i18n="scroll">Défiler pour entrer</div>
@@ -81,6 +82,8 @@
   <dialog id="editor-dialog" class="editor-dialog"><button class="close" data-close="editor-dialog" aria-label="Fermer">×</button><h2 id="editor-heading">Modifier l’album</h2><form id="editor-form"><div class="editor-grid"><label>Artiste<input name="artist" required></label><label>Titre<input name="title" required></label><label><span data-i18n="releaseId">ID Discogs</span><input name="release_id"></label><label><span data-i18n="price">Prix maximum</span><input name="price_cad" type="number" min="0" step="0.01" required></label><label><span data-i18n="quantity">Quantité</span><input name="quantity" type="number" min="0" step="1" required></label><label><span data-i18n="available">Disponible</span><select name="status"><option value="available">Disponible / Available</option><option value="sold">Vendu / Sold</option></select></label><label><span data-i18n="category">Catégorie</span><input name="category"></label><label><span data-i18n="format">Format</span><input name="format"></label><label><span data-i18n="label">Étiquette</span><input name="label_name"></label><label><span data-i18n="year">Année</span><input name="release_year" type="number" min="1900" max="2100"></label><label><span data-i18n="media">État média</span><input name="media_condition"></label><label><span data-i18n="sleeve">Pochette</span><input name="sleeve_condition"></label><label class="wide"><span data-i18n="imageUrl">URL de l’image HD</span><input name="custom_image_url" type="url" placeholder="https://"></label><label class="wide"><span data-i18n="notes">Notes</span><textarea name="notes" rows="3"></textarea></label></div><p id="editor-status" role="status"></p><button class="primary full" type="submit" data-i18n="save">Enregistrer</button></form></dialog>
   <footer><p data-i18n="discogsNotice">Les images et données Discogs sont utilisées conformément à leurs conditions d’utilisation. Discogs n’est ni affilié à Maison Sillon ni responsable de ce catalogue.</p></footer>
   <template id="card-template"><article class="album-card"><button class="cover-button"><img loading="lazy" alt=""><span class="sold" data-i18n="sold">VENDU</span></button><div class="album-copy"><h3></h3><p class="artist"></p><p class="card-price"></p><button class="add" data-i18n="add">Ajouter</button><button class="admin-edit" hidden data-i18n="edit">Modifier</button></div></article></template>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/ScrollTrigger.min.js"></script>
   <script type="module" src="/app.js"></script>
 </body>
 </html>

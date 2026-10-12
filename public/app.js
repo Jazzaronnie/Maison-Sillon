@@ -7,6 +7,8 @@ const state = {
   priceLimitInitialized: false
 };
 
+let jewelTrigger;
+
 const copy = {
   fr: {
     eyebrow:"COLLECTION MONTRÉALAISE", heroTitle:"Une collection choisie,<br>à écouter autrement.", heroBody:"Ouvrez le boîtier pour parcourir les sélections, puis explorez le catalogue complet.",
@@ -267,6 +269,104 @@ async function updateAdminSession() {
   try { state.admin = Boolean((await (await fetch("/api/admin/session")).json()).ok); } catch { state.admin = false; }
 }
 
+function initJewelJourney() {
+  const wrapper = document.querySelector("#scroll-wrapper");
+  const sticky = document.querySelector("#sticky-viewport");
+  const hero = document.querySelector("#hero-album");
+  const inner = document.querySelector("#hero-card-inner");
+  const grid = document.querySelector("#album-grid");
+  const decorations = grid ? [...grid.querySelectorAll(".flat-deco")] : [];
+  const intro = document.querySelector(".entrance-copy");
+  const note = document.querySelector(".scroll-note");
+  const navigation = document.querySelector("#archive-navigation");
+  const header = document.querySelector(".topbar");
+  if (!wrapper || !sticky || !hero || !inner || !grid || !navigation) return;
+
+  const setNavigation = active => {
+    navigation.inert = !active;
+    navigation.setAttribute("aria-hidden", String(!active));
+    navigation.style.pointerEvents = active ? "auto" : "none";
+    sticky.classList.toggle("shop-revealed", active);
+  };
+  const updateHeader = () => header.classList.toggle("scrolled", window.scrollY > 50);
+  window.addEventListener("scroll", updateHeader, { passive:true });
+  updateHeader();
+
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    setNavigation(true);
+    return;
+  }
+
+  if (window.gsap && window.ScrollTrigger) {
+    const { gsap, ScrollTrigger } = window;
+    gsap.registerPlugin(ScrollTrigger);
+    gsap.set(hero, { xPercent:-50, yPercent:-50, scale:1 });
+    gsap.set(inner, { rotationY:0 });
+    gsap.set(navigation, { autoAlpha:0, pointerEvents:"none" });
+    setNavigation(false);
+
+    const coverScale = () => {
+      const width = Math.max(hero.offsetWidth, 1);
+      const height = Math.max(hero.offsetHeight, 1);
+      return Math.max(window.innerWidth / width, window.innerHeight / height) * 1.02;
+    };
+    const timeline = gsap.timeline({
+      defaults: { ease:"none" },
+      scrollTrigger: {
+        trigger: wrapper,
+        start: "top top",
+        end: () => `+=${window.innerHeight * 3.5}`,
+        pin: sticky,
+        pinSpacing: true,
+        scrub: 1,
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
+        onUpdate: trigger => setNavigation(trigger.progress >= .92)
+      }
+    });
+    timeline.to({}, { duration:15 })
+      .to(decorations, {
+        opacity:0,
+        scale:.85,
+        y:index => index % 2 ? 36 : -36,
+        stagger:{ each:.18, from:"center" },
+        duration:20
+      })
+      .to([intro, note], { opacity:0, y:-22, duration:12 }, "<")
+      .to(hero, { scale:coverScale, duration:30, ease:"power2.inOut" })
+      .to(inner, { rotationY:180, duration:25, ease:"power2.inOut" })
+      .to(navigation, { autoAlpha:1, duration:5 })
+      .to({}, { duration:5 });
+
+    jewelTrigger = timeline.scrollTrigger;
+    window.addEventListener("load", () => ScrollTrigger.refresh(), { once:true });
+    return;
+  }
+
+  // A no-library safety path keeps the core interaction usable if the CDN is unavailable.
+  document.documentElement.classList.add("native-scroll");
+  const updateFallback = () => {
+    const travel = Math.max(1, wrapper.offsetHeight - window.innerHeight);
+    const progress = Math.min(Math.max(-wrapper.getBoundingClientRect().top / travel, 0), 1);
+    const zoom = Math.min(progress / .58, 1);
+    const flip = Math.min(Math.max((progress - .62) / .25, 0), 1);
+    const scale = 1 + Math.max(0, Math.max(window.innerWidth / hero.offsetWidth, window.innerHeight / hero.offsetHeight) * 1.02 - 1) * zoom;
+    hero.style.transform = `translate(-50%, -50%) scale(${scale})`;
+    inner.style.transform = `rotateY(${flip * 180}deg)`;
+    grid.style.opacity = String(1 - zoom);
+    grid.style.transform = `scale(${1 - zoom * .18})`;
+    intro.style.opacity = String(1 - zoom);
+    intro.style.transform = `translateY(${zoom * -24}px)`;
+    note.style.opacity = String(1 - zoom * 1.5);
+    navigation.style.opacity = String(flip);
+    navigation.style.visibility = flip > .96 ? "visible" : "hidden";
+    setNavigation(flip > .96);
+  };
+  window.addEventListener("scroll", updateFallback, { passive:true });
+  window.addEventListener("resize", updateFallback, { passive:true });
+  updateFallback();
+}
+
 function setup() {
   document.querySelector("#language").onclick = () => { state.language = state.language === "fr" ? "en" : "fr"; localStorage.setItem("maison-language", state.language); applyLanguage(); };
   document.querySelectorAll("[data-close]").forEach(button => button.onclick = () => document.querySelector(`#${button.dataset.close}`).close());
@@ -275,8 +375,8 @@ function setup() {
   const revealTracklist = () => {
     playTactileClickSound();
     const wrapper = document.querySelector("#scroll-wrapper");
-    const travel = wrapper.offsetHeight - window.innerHeight;
-    window.scrollTo({ top: wrapper.offsetTop + travel * .88, behavior:"smooth" });
+    const target = jewelTrigger ? jewelTrigger.start + (jewelTrigger.end - jewelTrigger.start) * .94 : wrapper.offsetTop + (wrapper.offsetHeight - window.innerHeight) * .88;
+    window.scrollTo({ top: target, behavior:"smooth" });
   };
   document.querySelector("#flip-hero").onclick = revealTracklist;
   document.querySelector(".case-turn-button").onclick = revealTracklist;
@@ -294,33 +394,7 @@ function setup() {
   document.querySelector("#admin-add").onclick = () => { document.querySelector("#admin-dialog").close(); openEditor(); };
   document.querySelector("#admin-logout").onclick = async () => { await fetch("/api/admin/logout", { method:"POST" }); state.admin = false; document.querySelector("#admin-tools").hidden = true; renderFeatured(); renderCatalogue(); };
   document.querySelector("#editor-form").addEventListener("submit", saveEditor);
-  const updateJewelJourney = () => {
-    const wrapper = document.querySelector("#scroll-wrapper");
-    const sticky = document.querySelector("#sticky-viewport");
-    const hero = document.querySelector("#hero-album");
-    const inner = document.querySelector("#hero-card-inner");
-    const grid = document.querySelector("#album-grid");
-    const copy = document.querySelector(".entrance-copy");
-    const note = document.querySelector(".scroll-note");
-    const travel = Math.max(1, wrapper.offsetHeight - window.innerHeight);
-    const progress = Math.min(Math.max(-wrapper.getBoundingClientRect().top / travel, 0), 1);
-    const zoom = Math.min(progress / .58, 1);
-    const flip = Math.min(Math.max((progress - .62) / .25, 0), 1);
-    const target = Math.min(window.innerWidth * .88, window.innerHeight * .78);
-    const scale = 1 + Math.max(0, target / Math.max(hero.offsetWidth, 1) - 1) * zoom;
-    hero.style.transform = `translate(-50%, -50%) scale(${scale})`;
-    inner.style.transform = `rotateY(${flip * 180}deg)`;
-    grid.style.opacity = String(1 - zoom);
-    grid.style.transform = `scale(${1 - zoom * .18})`;
-    copy.style.opacity = String(1 - zoom);
-    copy.style.transform = `translateY(${zoom * -24}px)`;
-    note.style.opacity = String(1 - zoom * 1.5);
-    sticky.classList.toggle("shop-revealed", flip > .7);
-    document.querySelector(".topbar").classList.toggle("scrolled", window.scrollY > 50);
-  };
-  window.addEventListener("scroll", updateJewelJourney, { passive:true });
-  window.addEventListener("resize", updateJewelJourney, { passive:true });
-  updateJewelJourney();
+  initJewelJourney();
   updateAdminSession().then(() => { if (state.admin) document.querySelector("#admin-tools").hidden = false; loadInventory(); });
 }
 setup();
