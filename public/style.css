@@ -92,3 +92,6 @@ header{padding-inline:24px}header>.brand{flex:none}header>nav{margin-left:auto;g
  .intro>.eyebrow{grid-column:2;grid-row:1;margin:0;padding-top:9px}
  .intro>.intro-copy{grid-column:1;grid-row:2;margin:0}
 }
+
+/* Shipping information appears only for postal delivery. */
+#shipping-details[hidden]{display:none}#shipping-details{margin:24px 0 0;padding:20px 0 0;border-top:1px solid #e6d8c7}#shipping-title{font:600 17px/1.3 Arial;margin:0 0 18px}.address-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}.address-field{display:flex;flex-direction:column;gap:7px;font:400 12px/1.4 Arial;color:#68584b}.address-field:nth-child(-n+2){grid-column:1/-1}.address-field input{min-width:0;width:100%;background:#fffdfb;border:1px solid #e3d4c2;border-radius:3px;padding:12px;font:400 16px/1.3 Arial;color:var(--ink)}.payment-note{font:400 13px/1.6 Arial;color:#766252;margin:17px 0 0}@media(max-width:450px){.address-grid{grid-template-columns:1fr}.address-field{grid-column:1/-1}}
