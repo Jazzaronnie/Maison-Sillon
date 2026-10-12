@@ -86,32 +86,48 @@ if (canvas && roomElement && entrance) {
     chair.add(new THREE.Mesh(new THREE.SphereGeometry(1.5, 32, 20), ivory)); chair.children[1].scale.set(1, .78, .58); chair.children[1].position.set(0, 1.65, .55);
     chair.rotation.y = -.22; scene.add(chair);
 
-    // These are deliberate camera stops, not four replacement images.  Scrolling
-    // moves the *same* camera through the room, then the render loop eases it to
-    // the next viewpoint so the turn is plainly visible on touch devices too.
     const stops = [
-      // Enter through the centre, then pan left, rear, and right around the sofa.
-      { position: new THREE.Vector3(0, 4.35, 14.2), target: new THREE.Vector3(0, 3.0, -7.8) },
-      { position: new THREE.Vector3(-5.9, 3.65, 5.9), target: new THREE.Vector3(-8.9, 3.05, 0) },
-      { position: new THREE.Vector3(0, 3.65, 1.8), target: new THREE.Vector3(0, 3.05, 8.9) },
-      { position: new THREE.Vector3(5.9, 3.65, 5.9), target: new THREE.Vector3(8.9, 3.05, 0) }
+      { camera: new THREE.Vector3(0, 3.6, 3.3), target: new THREE.Vector3(0, 3.0, -8.9) },
+      { camera: new THREE.Vector3(-5.8, 3.55, 5.8), target: new THREE.Vector3(-8.9, 3.0, 0) },
+      { camera: new THREE.Vector3(0, 3.55, 1.6), target: new THREE.Vector3(0, 3.0, 8.9) },
+      { camera: new THREE.Vector3(5.8, 3.55, 5.8), target: new THREE.Vector3(8.9, 3.0, 0) }
     ];
-    const cameraPosition = stops[0].position.clone();
-    const lookTarget = stops[0].target.clone();
-    const desiredPosition = stops[0].position.clone();
-    const desiredTarget = stops[0].target.clone();
-    function smooth(value) { return value * value * (3 - 2 * value); }
+
+    // One continuous camera path plus a separate look-at path.  Keeping these
+    // separate lets the camera travel around the chair while facing each shelf.
+    const openingCamera = new THREE.Vector3(0, 4.55, 14.4);
+    const openingTarget = new THREE.Vector3(0, 2.6, -1.4);
+    const closingCamera = new THREE.Vector3(0, 4.45, 13.5);
+    const closingTarget = new THREE.Vector3(0, 2.8, 0);
+    const cameraCurve = new THREE.CatmullRomCurve3([openingCamera, ...stops.map(stop => stop.camera), closingCamera], false, "centripetal", 0.5);
+    const targetCurve = new THREE.CatmullRomCurve3([openingTarget, ...stops.map(stop => stop.target), closingTarget], false, "centripetal", 0.5);
+    const samples = Array.from({ length: 601 }, (_, index) => {
+      const t = index / 600;
+      return { t, point: cameraCurve.getPoint(t) };
+    });
+    const stopProgress = stops.map(stop => samples.reduce((best, sample) => sample.point.distanceToSquared(stop.camera) < best.distance ? { t: sample.t, distance: sample.point.distanceToSquared(stop.camera) } : best, { t:0, distance:Infinity }).t);
+    let activeStop = -1;
+
+    // The scroll position is the timeline. Do not add a per-frame lerp here:
+    // it makes the camera lag a visitor's finger and prevents exact shelf stops.
     function applyJourney() {
-      // Using the section's live screen position is more dependable than a raw
-      // page scroll value when the room is sticky on Safari/iOS.
       const bounds = entrance.getBoundingClientRect();
       const total = Math.max(1, entrance.offsetHeight - window.innerHeight);
-      const progress = THREE.MathUtils.clamp((-bounds.top) / total, 0, .9999);
-      const scaled = progress * (stops.length - 1); const index = Math.floor(scaled); const local = smooth(scaled - index);
-      desiredPosition.lerpVectors(stops[index].position, stops[index + 1].position, local);
-      desiredTarget.lerpVectors(stops[index].target, stops[index + 1].target, local);
-      roomElement.dataset.scene = String(index);
+      const progress = THREE.MathUtils.clamp((-bounds.top) / total, 0, 1);
+      camera.position.copy(cameraCurve.getPoint(progress));
+      camera.lookAt(targetCurve.getPoint(progress));
       roomElement.dataset.cameraProgress = progress.toFixed(3);
+      let nextStop = -1; let nearest = 0.095;
+      stopProgress.forEach((stopAt, index) => {
+        const distance = Math.abs(progress - stopAt);
+        if (distance < nearest) { nearest = distance; nextStop = index; }
+      });
+      if (nextStop !== activeStop) {
+        activeStop = nextStop;
+        roomElement.dataset.scene = nextStop >= 0 ? String(nextStop) : "";
+        if (nextStop >= 0) window.dispatchEvent(new CustomEvent("maison:room-stop", { detail:{ index:nextStop } }));
+      }
+      renderer.render(scene, camera);
     }
     function resize() {
       const { width, height } = roomElement.getBoundingClientRect();
@@ -119,6 +135,7 @@ if (canvas && roomElement && entrance) {
       renderer.setSize(width, height, false);
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
+      applyJourney();
     }
     window.addEventListener("resize", resize, { passive:true });
     window.addEventListener("scroll", applyJourney, { passive:true });
@@ -127,20 +144,10 @@ if (canvas && roomElement && entrance) {
       resize();
       applyJourney();
       roomElement.classList.add("room3d-ready");
-    });
-    function render() {
-      // The easing here is what makes a wheel gesture or mobile swipe read as a
-      // cinematic move rather than an instant jump between static cameras.
-      cameraPosition.lerp(desiredPosition, 0.035);
-      lookTarget.lerp(desiredTarget, 0.035);
-      camera.position.copy(cameraPosition);
-      camera.lookAt(lookTarget);
       renderer.render(scene, camera);
-    }
-    // setAnimationLoop survives mobile tab throttling better than a manually
-    // chained requestAnimationFrame and resumes cleanly when the tab is active.
-    renderer.setAnimationLoop(render);
-    window.__maisonSillon3D = { renderer, camera, applyJourney, roomElement };
+    });
+    entrance.style.minHeight = `${100 + stops.length * 90}vh`;
+    window.__maisonSillon3D = { renderer, camera, applyJourney, roomElement, stopProgress };
   } catch (error) {
     console.warn("Maison Sillon 3D fallback", error);
     roomElement.classList.add("webgl-unavailable");

@@ -265,10 +265,13 @@ function setup() {
     // The camera is painted inside the fixed viewport; never transform the sticky
     // room container itself, which would expose a blank area below it on mobile.
     room.style.transform = "none";
-    setRoomStep(Math.min(3, Math.floor(journey * 4)));
+    // The WebGL path owns the active shelf. This is only a fallback for a
+    // browser without WebGL, where the photo sequence remains available.
+    if (room.classList.contains("webgl-unavailable")) setRoomStep(Math.min(3, Math.floor(journey * 4)));
     document.querySelector(".topbar").classList.toggle("scrolled", window.scrollY > 50);
   };
   window.addEventListener("scroll", updateRoomJourney, { passive:true });
+  window.addEventListener("maison:room-stop", event => setRoomStep(event.detail.index));
   updateRoomJourney();
   updateAdminSession().then(() => { if (state.admin) document.querySelector("#admin-tools").hidden = false; loadInventory(); });
 }
