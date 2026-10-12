@@ -1,0 +1,3 @@
+.room-3d{display:block!important;position:absolute;inset:0;z-index:0;width:100%;height:100%;touch-action:pan-y}
+.room-scene{display:none!important}.room::before{content:none!important}.room-showcase{display:none!important}.room::after{z-index:1;pointer-events:none}
+.room.webgl-unavailable .room-scene{display:block!important}.room.webgl-unavailable .scene-centre{opacity:1!important}
