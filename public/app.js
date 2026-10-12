@@ -257,15 +257,19 @@ function setup() {
   document.querySelector("#admin-add").onclick = () => { document.querySelector("#admin-dialog").close(); openEditor(); };
   document.querySelector("#admin-logout").onclick = async () => { await fetch("/api/admin/logout", { method:"POST" }); state.admin = false; document.querySelector("#admin-tools").hidden = true; renderFeatured(); renderCatalogue(); };
   document.querySelector("#editor-form").addEventListener("submit", saveEditor);
-  window.addEventListener("scroll", () => {
-    const journey = Math.min(window.scrollY / Math.max(1, window.innerHeight * 1.3), 1);
+  const updateRoomJourney = () => {
+    const entrance = document.querySelector("#entrance");
+    const bounds = entrance.getBoundingClientRect();
+    const journey = Math.min(Math.max(-bounds.top / Math.max(1, entrance.offsetHeight - window.innerHeight), 0), .9999);
     const room = document.querySelector("#room");
     // The camera is painted inside the fixed viewport; never transform the sticky
     // room container itself, which would expose a blank area below it on mobile.
     room.style.transform = "none";
     setRoomStep(Math.min(3, Math.floor(journey * 4)));
     document.querySelector(".topbar").classList.toggle("scrolled", window.scrollY > 50);
-  }, { passive:true });
+  };
+  window.addEventListener("scroll", updateRoomJourney, { passive:true });
+  updateRoomJourney();
   updateAdminSession().then(() => { if (state.admin) document.querySelector("#admin-tools").hidden = false; loadInventory(); });
 }
 setup();
