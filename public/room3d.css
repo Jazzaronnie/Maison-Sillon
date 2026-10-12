@@ -1,11 +1,15 @@
 /* The room is one real-time scene. The older photo viewpoints stay only as a
    no-WebGL fallback; they are never layered on top of the 3D camera. */
-.room-3d{display:block!important;position:absolute;inset:0;z-index:2;width:100%;height:100%;touch-action:pan-y;background:#120906}
-.room.room3d-ready{background:#120906!important;background-image:none!important}
+.entrance{min-height:0!important}
+#viewport-height-tracker{height:360vh;pointer-events:none}
+#canvas-container{position:fixed;inset:0;z-index:1;width:100vw;height:100svh;overflow:hidden;pointer-events:none;background:#120906}
+.room-3d{display:block!important;width:100%;height:100%;touch-action:pan-y;background:#120906}
+.room.room3d-ready{background:#120906!important;background-image:none!important;transform:none!important}
 .entrance:has(.room.room3d-ready){background:#120906!important;background-image:none!important}
 .room.room3d-ready .room-scene{display:none!important}
 .room.room3d-ready .room-showcase{display:block!important;z-index:4!important}
+.entrance-copy,.scroll-note{z-index:5!important}
 .room::after{z-index:3;pointer-events:none}
-.room.webgl-unavailable .room-3d{display:none!important}
+.room.webgl-unavailable #canvas-container{display:none!important}
 .room.webgl-unavailable .room-scene{display:block!important}
 .room.webgl-unavailable .scene-centre{opacity:1!important;transform:scale(1)!important}

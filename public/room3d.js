@@ -1,10 +1,13 @@
 import * as THREE from "/vendor/three.module.js";
+import { GLTFLoader } from "/vendor/loaders/GLTFLoader.js";
 
 const canvas = document.querySelector("#room-3d");
+const canvasContainer = document.querySelector("#canvas-container");
 const roomElement = document.querySelector("#room");
 const entrance = document.querySelector("#entrance");
+const viewportTracker = document.querySelector("#viewport-height-tracker");
 
-if (canvas && roomElement && entrance) {
+if (canvas && canvasContainer && roomElement && entrance && viewportTracker) {
   try {
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
@@ -25,6 +28,14 @@ if (canvas && roomElement && entrance) {
     const glow = new THREE.MeshStandardMaterial({ color: 0xffb45d, emissive: 0xe76b1c, emissiveIntensity: 2.1 });
     const cdColors = [0x221713,0x6c2420,0xddd0bb,0x283341,0x8d6d35,0x2e5a4b,0x4b2935];
 
+    // Base illumination must remain visible even if a spotlight is outside the
+    // camera frustum. This prevents the "black void" when the camera turns.
+    const ambientLight = new THREE.AmbientLight(0xffd5a0, 2.8);
+    scene.add(ambientLight);
+    const directionalLight = new THREE.DirectionalLight(0xffc57d, 4.5);
+    directionalLight.position.set(2, 9, 6);
+    directionalLight.target.position.set(0, 1.8, 0);
+    scene.add(directionalLight, directionalLight.target);
     scene.add(new THREE.HemisphereLight(0xffdda9, 0x150804, 1.45));
     const centreLight = new THREE.PointLight(0xffb45b, 220, 24, 2);
     centreLight.position.set(0, 6.5, 0); scene.add(centreLight);
@@ -113,10 +124,13 @@ if (canvas && roomElement && entrance) {
 
     // The scroll position is the timeline. Do not add a per-frame lerp here:
     // it makes the camera lag a visitor's finger and prevents exact shelf stops.
-    function applyJourney() {
-      const bounds = entrance.getBoundingClientRect();
-      const total = Math.max(1, entrance.offsetHeight - window.innerHeight);
-      const progress = THREE.MathUtils.clamp((-bounds.top) / total, 0, 1);
+    function fallbackProgress() {
+      const bounds = viewportTracker.getBoundingClientRect();
+      return THREE.MathUtils.clamp((window.innerHeight - bounds.top) / Math.max(1, viewportTracker.offsetHeight), 0, 1);
+    }
+
+    function applyJourney(progress = fallbackProgress()) {
+      progress = THREE.MathUtils.clamp(progress, 0, 1);
       camera.position.copy(cameraCurve.getPoint(progress));
       camera.lookAt(targetCurve.getPoint(progress));
       roomElement.dataset.cameraProgress = progress.toFixed(3);
@@ -133,7 +147,7 @@ if (canvas && roomElement && entrance) {
       renderer.render(scene, camera);
     }
     function resize() {
-      const { width, height } = roomElement.getBoundingClientRect();
+      const { width, height } = canvasContainer.getBoundingClientRect();
       if (width < 2 || height < 2) return;
       renderer.setSize(width, height, false);
       camera.aspect = width / height;
@@ -141,7 +155,63 @@ if (canvas && roomElement && entrance) {
       applyJourney();
     }
     window.addEventListener("resize", resize, { passive:true });
-    window.addEventListener("scroll", applyJourney, { passive:true });
+
+    // The GLB is optional during the procedural-room phase. When an asset URL
+    // is supplied, these logs make it unambiguous whether loading succeeded,
+    // failed, or the resulting coordinates are outside the camera's view.
+    const modelUrl = canvas.dataset.modelUrl?.trim();
+    const gltfLoader = new GLTFLoader();
+    if (modelUrl) {
+      console.info("[Maison Sillon 3D] Fetching GLB model", { modelUrl });
+      gltfLoader.load(
+        modelUrl,
+        (gltf) => {
+          const roomModel = gltf.scene;
+          scene.add(roomModel);
+          const bounds = new THREE.Box3().setFromObject(roomModel);
+          const centre = bounds.getCenter(new THREE.Vector3());
+          const size = bounds.getSize(new THREE.Vector3());
+          console.info("[Maison Sillon 3D] GLB loaded", {
+            modelUrl,
+            children: roomModel.children.length,
+            centre: centre.toArray(),
+            size: size.toArray(),
+            camera: camera.position.toArray()
+          });
+          applyJourney();
+        },
+        (event) => {
+          if (event.total) console.info("[Maison Sillon 3D] GLB progress", { modelUrl, loaded: event.loaded, total: event.total });
+        },
+        (error) => console.error("[Maison Sillon 3D] GLB failed to load", { modelUrl, error })
+      );
+    } else {
+      console.info("[Maison Sillon 3D] No GLB URL configured; using the procedural room.");
+    }
+
+    async function connectScrollTrigger() {
+      try {
+        const [{ gsap }, { ScrollTrigger }] = await Promise.all([
+          import("https://cdn.jsdelivr.net/npm/gsap@3.12.7/+esm"),
+          import("https://cdn.jsdelivr.net/npm/gsap@3.12.7/ScrollTrigger.js/+esm")
+        ]);
+        gsap.registerPlugin(ScrollTrigger);
+        ScrollTrigger.create({
+          trigger: viewportTracker,
+          start: "top bottom",
+          end: "bottom bottom",
+          scrub: true,
+          invalidateOnRefresh: true,
+          onUpdate: (self) => applyJourney(self.progress)
+        });
+        console.info("[Maison Sillon 3D] ScrollTrigger connected to #viewport-height-tracker");
+        ScrollTrigger.refresh();
+      } catch (error) {
+        console.warn("[Maison Sillon 3D] ScrollTrigger unavailable; using native scroll fallback.", error);
+        window.addEventListener("scroll", () => applyJourney(), { passive:true });
+      }
+    }
+
     new ResizeObserver(resize).observe(roomElement);
     requestAnimationFrame(() => {
       resize();
@@ -149,8 +219,9 @@ if (canvas && roomElement && entrance) {
       roomElement.classList.add("room3d-ready");
       renderer.render(scene, camera);
     });
-    entrance.style.minHeight = `${100 + stops.length * 90}vh`;
-    window.__maisonSillon3D = { renderer, camera, applyJourney, roomElement, stopProgress };
+    viewportTracker.style.height = `${stops.length * 90}vh`;
+    connectScrollTrigger();
+    window.__maisonSillon3D = { renderer, camera, applyJourney, roomElement, viewportTracker, stopProgress, gltfLoader };
   } catch (error) {
     console.warn("Maison Sillon 3D fallback", error);
     roomElement.classList.add("webgl-unavailable");
