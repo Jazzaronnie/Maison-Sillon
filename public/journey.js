@@ -23,6 +23,8 @@
     const jewel=q('.jewel');jewel.classList.toggle('settled',state.flip>=.9999);
     jewel.style.transform=`rotateY(${state.flip*180}deg) rotateZ(${(1-state.zoom)*-7}deg)`;
     q('.intro').style.opacity=1-clamp(state.zoom*2);
+    q('.journey-footer').style.opacity=1-clamp(state.zoom*2);
+    q('.journey-footer').setAttribute('aria-hidden',String(state.zoom>=.5));
     q('.intro').style.transform=`translateY(${-state.zoom*40}px)`;
     q('.wall').style.opacity=1-clamp(state.zoom*1.6);
     q('.wall').style.transform=`rotate(${-9+state.zoom*9}deg) scale(${1+state.zoom*.2})`;
