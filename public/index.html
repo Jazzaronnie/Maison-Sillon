@@ -6,10 +6,7 @@
   <meta name="theme-color" content="#160e0a">
   <title>Maison Sillon — CD & Vinyl Collection</title>
   <link rel="stylesheet" href="/styles.css">
-  <link rel="stylesheet" href="/room-showcase.css">
-  <link rel="stylesheet" href="/camera-journey.css">
-  <link rel="stylesheet" href="/room3d.css">
-  <script type="importmap">{"imports":{"three":"/vendor/three.module.js"}}</script>
+  <link rel="stylesheet" href="/jewel-case.css">
 </head>
 <body>
   <header class="topbar">
@@ -22,25 +19,39 @@
 
   <main>
     <section class="entrance" id="entrance">
-      <div class="room" id="room" data-scene="0" aria-label="Salle d'écoute Maison Sillon">
-        <div id="canvas-container" aria-hidden="true"><canvas class="room-3d" id="room-3d" aria-label="Salle 3D Maison Sillon" data-model-url=""></canvas></div>
-        <div class="room-scene scene-centre" aria-hidden="true"></div>
-        <div class="room-scene scene-left" aria-hidden="true"></div>
-        <div class="room-scene scene-right" aria-hidden="true"></div>
-        <div class="room-scene scene-back" aria-hidden="true"></div>
-        <div class="ceiling"></div><div class="floor"></div><div class="wall back-wall"></div>
-        <div class="shelf left-shelf"></div><div class="shelf right-shelf"></div>
-        <div class="pedestal"><span>MAISON SILLON</span></div>
-        <div class="room-showcase" id="room-showcase" aria-live="polite"></div>
+      <div id="scroll-wrapper">
+        <div id="sticky-viewport">
+          <div class="hero-wash" aria-hidden="true"></div>
+          <div class="album-grid" id="album-grid" aria-hidden="true"></div>
+        <div class="entrance-copy">
+          <p class="eyebrow" data-i18n="eyebrow">COLLECTION MONTRÉALAISE</p>
+          <h1 data-i18n="heroTitle">Une collection choisie,<br>à écouter autrement.</h1>
+          <p data-i18n="heroBody">Faites défiler pour parcourir la salle. Découvrez les pièces sélectionnées, puis explorez le catalogue complet.</p>
+          <button class="primary" type="button" id="flip-hero" data-i18n="openTracklist">Voir la sélection</button>
+        </div>
+        <section id="hero-album" aria-label="Maison Sillon tracklist">
+          <div class="card-inner" id="hero-card-inner">
+            <div class="card-front">
+              <img class="hero-cover" id="hero-cover" alt="">
+              <div class="cover-shade" aria-hidden="true"></div>
+              <p class="case-kicker">MAISON SILLON</p>
+              <div class="case-front-copy"><span id="hero-artist">CURATED AUDIO VAULT</span><strong id="hero-title">MONTRÉAL, QC</strong></div>
+              <button class="case-turn-button" type="button" data-i18n="openTracklist">Voir la sélection</button>
+            </div>
+            <div class="card-back">
+              <div class="cd-liner-sticker">
+                <div class="sticker-header"><h2>MAISON SILLON</h2><p data-i18n="tracklistSubtitle">MONTRÉAL, QC • SÉLECTIONS</p></div>
+                <p class="tracklist-label" data-i18n="tracklistLabel">PISTES / SÉLECTIONS</p>
+                <ul class="tracklist-menu" id="tracklist-menu" aria-live="polite"></ul>
+                <div class="mini-basket-footer"><span>💿 <span data-i18n="basket">Panier</span>: <strong id="liner-cart-count">0</strong> <span data-i18n="itemsShort">articles</span></span><button class="checkout-slide-btn" id="liner-cart" type="button" data-i18n="viewBasket">Voir le panier</button></div>
+              </div>
+            </div>
+          </div>
+        </section>
+          <div class="scroll-note" data-i18n="scroll">Défiler pour entrer</div>
+        </div>
+        <div id="scroll-extend" aria-hidden="true"></div>
       </div>
-      <div id="viewport-height-tracker" aria-hidden="true"></div>
-      <div class="entrance-copy">
-        <p class="eyebrow" data-i18n="eyebrow">COLLECTION MONTRÉALAISE</p>
-        <h1 data-i18n="heroTitle">Une collection choisie,<br>à écouter autrement.</h1>
-        <p data-i18n="heroBody">Faites défiler pour parcourir la salle. Découvrez les pièces sélectionnées, puis explorez le catalogue complet.</p>
-        <a class="primary" href="#catalogue" data-i18n="browse">Explorer le catalogue</a>
-      </div>
-      <div class="scroll-note" data-i18n="scroll">Défiler pour entrer</div>
     </section>
 
     <section class="featured" id="featured">
@@ -71,6 +82,5 @@
   <footer><p data-i18n="discogsNotice">Les images et données Discogs sont utilisées conformément à leurs conditions d’utilisation. Discogs n’est ni affilié à Maison Sillon ni responsable de ce catalogue.</p></footer>
   <template id="card-template"><article class="album-card"><button class="cover-button"><img loading="lazy" alt=""><span class="sold" data-i18n="sold">VENDU</span></button><div class="album-copy"><h3></h3><p class="artist"></p><p class="card-price"></p><button class="add" data-i18n="add">Ajouter</button><button class="admin-edit" hidden data-i18n="edit">Modifier</button></div></article></template>
   <script type="module" src="/app.js"></script>
-  <script type="module" src="/room3d.js"></script>
 </body>
 </html>

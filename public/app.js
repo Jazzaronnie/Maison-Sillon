@@ -4,14 +4,13 @@ const state = {
   cart: JSON.parse(localStorage.getItem("maison-cart") || "[]"),
   admin: false,
   visibleCount: 80,
-  priceLimitInitialized: false,
-  roomStep: -1
+  priceLimitInitialized: false
 };
 
 const copy = {
   fr: {
-    eyebrow:"COLLECTION MONTRÉALAISE", heroTitle:"Une collection choisie,<br>à écouter autrement.", heroBody:"Faites défiler pour parcourir la salle. Découvrez les pièces sélectionnées, puis explorez le catalogue complet.",
-    browse:"Explorer le catalogue", scroll:"Défiler pour entrer", featuredEyebrow:"PIÈCES EN VEDETTE", featuredTitle:"Sur les étagères", featuredBody:"Albums sélectionnés selon leur prix, leur disponibilité et leur intérêt Discogs. Touchez une pochette pour l’examiner.",
+    eyebrow:"COLLECTION MONTRÉALAISE", heroTitle:"Une collection choisie,<br>à écouter autrement.", heroBody:"Ouvrez le boîtier pour parcourir les sélections, puis explorez le catalogue complet.",
+    browse:"Explorer le catalogue", scroll:"Ouvrir la sélection", openTracklist:"Voir la sélection", tracklistSubtitle:"MONTRÉAL, QC • SÉLECTIONS", tracklistLabel:"PISTES / SÉLECTIONS", basket:"Panier", itemsShort:"articles", viewBasket:"Voir le panier", fullCatalog:"VOIR LE CATALOGUE COMPLET", featuredEyebrow:"PIÈCES EN VEDETTE", featuredTitle:"Sur les étagères", featuredBody:"Albums sélectionnés selon leur prix, leur disponibilité et leur intérêt Discogs. Touchez une pochette pour l’examiner.",
     catalogueEyebrow:"INVENTAIRE COMPLET", catalogueTitle:"Le catalogue", search:"Rechercher", searchPlaceholder:"Artiste ou titre", category:"Catégorie", condition:"État du média", price:"Prix maximum", all:"Toutes",
     admin:"Administration", sold:"VENDU", add:"Ajouter", remove:"Retirer", cartTitle:"Votre panier", fulfillment:"Livraison et cueillette", pickup:"Cueillette gratuite à Montréal", shipping:"Livraison postale", neighbourhood:"Quartier et code postal",
     total:"Total estimé", copyOrder:"Copier la demande pour Messenger", empty:"Votre panier est vide.", adminTitle:"Administration Maison Sillon", adminBody:"Entrez votre mot de passe pour modifier les prix, quantités, images et disponibilités.",
@@ -21,8 +20,8 @@ const copy = {
     discogsNotice:"Les images et données Discogs sont utilisées conformément à leurs conditions d’utilisation. Discogs n’est ni affilié à Maison Sillon ni responsable de ce catalogue.", roomInspect:"Touchez une pièce en vedette pour l’examiner"
   },
   en: {
-    eyebrow:"MONTREAL COLLECTION", heroTitle:"A considered collection,<br>heard differently.", heroBody:"Scroll through the room. Discover selected records, then browse the full catalogue.",
-    browse:"Browse the catalogue", scroll:"Scroll to enter", featuredEyebrow:"FEATURED SELECTION", featuredTitle:"On the shelves", featuredBody:"Albums selected for price, availability and Discogs interest. Tap a cover to inspect it.",
+    eyebrow:"MONTREAL COLLECTION", heroTitle:"A considered collection,<br>heard differently.", heroBody:"Open the jewel case to browse selections, then explore the complete catalogue.",
+    browse:"Browse the catalogue", scroll:"Open selections", openTracklist:"View selections", tracklistSubtitle:"MONTRÉAL, QC • TRACKLIST SELECTIONS", tracklistLabel:"TRACKLIST / SELECTIONS", basket:"Basket", itemsShort:"items", viewBasket:"View basket", fullCatalog:"SEE FULL CATALOG", featuredEyebrow:"FEATURED SELECTION", featuredTitle:"On the shelves", featuredBody:"Albums selected for price, availability and Discogs interest. Tap a cover to inspect it.",
     catalogueEyebrow:"COMPLETE INVENTORY", catalogueTitle:"The catalogue", search:"Search", searchPlaceholder:"Artist or title", category:"Category", condition:"Media condition", price:"Maximum price", all:"All",
     admin:"Administration", sold:"SOLD", add:"Add", remove:"Remove", cartTitle:"Your basket", fulfillment:"Delivery & pickup", pickup:"Free pickup in Montréal", shipping:"Postal shipping", neighbourhood:"Neighbourhood and postal code",
     total:"Estimated total", copyOrder:"Copy request for Messenger", empty:"Your basket is empty.", adminTitle:"Maison Sillon administration", adminBody:"Enter your password to edit prices, quantities, images and availability.",
@@ -56,7 +55,7 @@ function applyLanguage() {
   });
   document.querySelectorAll("[data-i18n-placeholder]").forEach(element => element.placeholder = t(element.dataset.i18nPlaceholder));
   document.querySelector("#language").textContent = state.language === "fr" ? "FR / EN" : "EN / FR";
-  renderFilters(); renderRoomShowcase(); renderFeatured(); renderCatalogue(); renderCart();
+  renderFilters(); renderHeroGrid(); renderHeroTracklist(); renderFeatured(); renderCatalogue(); renderCart();
 }
 
 async function loadInventory() {
@@ -95,39 +94,66 @@ function renderFeatured() {
   (featured.length ? featured : state.inventory.slice(0,6)).forEach(release => target.append(createCard(release)));
 }
 
-function selectedRoomReleases() {
-  const categories = [...new Set(state.inventory.map(release => release.category).filter(Boolean))];
-  const selected = categories.map(category => state.inventory
-    .filter(release => release.category === category && release.status !== "sold" && Number(release.quantity) > 0)
-    .sort((a,b) => b.popularity_score - a.popularity_score || b.price_cad - a.price_cad)[0])
-    .filter(Boolean).slice(0, 3);
-  return selected.length ? selected : state.inventory.filter(release => release.status !== "sold").slice(0, 3);
+function renderHeroGrid() {
+  const grid = document.querySelector("#album-grid");
+  const heroCover = document.querySelector("#hero-cover");
+  if (!grid || !heroCover) return;
+  const available = state.inventory.filter(release => release.status !== "sold" && Number(release.quantity) > 0);
+  const ranked = [...available].sort((a, b) => b.popularity_score - a.popularity_score || b.price_cad - a.price_cad);
+  const hero = ranked[0] || state.inventory[0];
+  if (!hero) return;
+  const imageFor = release => release.custom_image_url || release.discogs_image_url || placeholder(release.title);
+  heroCover.src = imageFor(hero); heroCover.alt = `${hero.artist} — ${hero.title}`;
+  heroCover.onerror = () => { heroCover.onerror = null; heroCover.src = placeholder(hero.title); };
+  document.querySelector("#hero-artist").textContent = hero.artist;
+  document.querySelector("#hero-title").textContent = hero.title;
+  const deco = ranked.filter(release => idOf(release) !== idOf(hero)).slice(0, 14);
+  grid.innerHTML = deco.map(release => `<span class="flat-deco"><img src="${escape(imageFor(release))}" alt=""></span>`).join("");
 }
 
-function renderRoomShowcase() {
-  const target = document.querySelector("#room-showcase");
-  if (!target) return;
-  const releases = selectedRoomReleases();
-  target.innerHTML = `<p class="room-hint">${escape(t("roomInspect"))}</p><p class="room-shelf-label" id="room-shelf-label">${escape(releases[0]?.category || "Collection")}</p><div class="room-displays">${releases.map((release, index) => {
-    const image = release.custom_image_url || release.discogs_image_url || placeholder(release.title);
-    return `<button class="room-record ${index === 0 ? "is-active" : ""}" type="button" data-room-index="${index}" aria-label="${escape(`${release.artist} — ${release.title}`)}"><span class="room-cover"><img src="${escape(image)}" alt=""></span><span class="room-record-copy"><strong>${escape(release.title)}</strong><small>${escape(release.artist)}</small></span></button>`;
-  }).join("")}</div>`;
-  target.querySelectorAll(".room-record").forEach(button => button.onclick = () => {
-    const release = releases[Number(button.dataset.roomIndex)];
-    if (release) openRecord(release);
+let audioContext;
+function playTactileClickSound() {
+  try {
+    audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
+    if (audioContext.state === "suspended") audioContext.resume();
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    oscillator.type = "triangle";
+    oscillator.frequency.setValueAtTime(120, audioContext.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(16, audioContext.currentTime + .045);
+    gain.gain.setValueAtTime(.025, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(.001, audioContext.currentTime + .05);
+    oscillator.connect(gain).connect(audioContext.destination);
+    oscillator.start(); oscillator.stop(audioContext.currentTime + .055);
+  } catch { /* Audio is an optional tactile enhancement. */ }
+}
+
+function renderHeroTracklist() {
+  const menu = document.querySelector("#tracklist-menu");
+  if (!menu) return;
+  const preferred = ["Rock & Pop", "Classical", "Jazz & Blues", "Folk & Country", "Ambient"];
+  const available = new Set(state.inventory.map(release => release.category).filter(Boolean));
+  const categories = [...preferred.filter(category => available.has(category)), ...[...available].filter(category => !preferred.includes(category)).sort()].slice(0, 4);
+  const rows = categories.map((category, index) => {
+    const count = state.inventory.filter(release => release.category === category && release.status !== "sold" && Number(release.quantity) > 0).length;
+    return `<li><button class="track-item" type="button" data-genre="${escape(category)}"><span class="track-num">${String(index + 1).padStart(2, "0")}</span><span class="track-name">${escape(category)}</span><span class="track-dots"></span><span class="track-duration">(${String(count).padStart(2, "0")})</span></button></li>`;
+  }).join("");
+  menu.innerHTML = `${rows}<li><button class="track-item full-catalog-trigger" id="view-all-tracks" type="button"><span class="track-num">${String(categories.length + 1).padStart(2, "0")}</span><span class="track-name">${escape(t("fullCatalog"))}</span><span class="track-arrow">──►</span></button></li>`;
+  menu.querySelectorAll("[data-genre]").forEach(button => {
+    button.addEventListener("pointerenter", playTactileClickSound);
+    button.addEventListener("focus", playTactileClickSound);
+    button.onclick = () => selectHeroCategory(button.dataset.genre);
   });
+  menu.querySelector("#view-all-tracks").onclick = () => selectHeroCategory("");
 }
 
-function setRoomStep(step) {
-  const records = document.querySelectorAll(".room-record");
-  if (step === state.roomStep) return;
-  state.roomStep = step;
-  document.querySelector("#room").dataset.scene = String(step);
-  if (!records.length) return;
-  records.forEach((record, index) => record.classList.toggle("is-active", index === step % records.length));
-  const releases = selectedRoomReleases();
-  const label = document.querySelector("#room-shelf-label");
-  if (label) label.textContent = releases[step % releases.length]?.category || "Collection";
+function selectHeroCategory(category) {
+  playTactileClickSound();
+  const filter = document.querySelector("#category-filter");
+  filter.value = category;
+  state.visibleCount = 80;
+  renderCatalogue();
+  document.querySelector("#catalogue").scrollIntoView({ behavior:"smooth", block:"start" });
 }
 
 function renderFilters() {
@@ -183,6 +209,8 @@ function cartReleases() { return state.cart.map(item => ({...item, release: stat
 function renderCart() {
   const items = cartReleases();
   document.querySelector("#cart-count").textContent = items.reduce((number,item) => number + item.quantity, 0);
+  const linerCartCount = document.querySelector("#liner-cart-count");
+  if (linerCartCount) linerCartCount.textContent = items.reduce((number,item) => number + item.quantity, 0);
   const target = document.querySelector("#cart-items"); target.innerHTML = items.length ? "" : `<p>${t("empty")}</p>`;
   items.forEach(({release,quantity}) => {
     const row = document.createElement("div"); row.className = "cart-row";
@@ -243,6 +271,15 @@ function setup() {
   document.querySelector("#language").onclick = () => { state.language = state.language === "fr" ? "en" : "fr"; localStorage.setItem("maison-language", state.language); applyLanguage(); };
   document.querySelectorAll("[data-close]").forEach(button => button.onclick = () => document.querySelector(`#${button.dataset.close}`).close());
   document.querySelector("#open-cart").onclick = () => { renderCart(); document.querySelector("#cart-dialog").showModal(); };
+  document.querySelector("#liner-cart").onclick = () => { renderCart(); document.querySelector("#cart-dialog").showModal(); };
+  const revealTracklist = () => {
+    playTactileClickSound();
+    const wrapper = document.querySelector("#scroll-wrapper");
+    const travel = wrapper.offsetHeight - window.innerHeight;
+    window.scrollTo({ top: wrapper.offsetTop + travel * .88, behavior:"smooth" });
+  };
+  document.querySelector("#flip-hero").onclick = revealTracklist;
+  document.querySelector(".case-turn-button").onclick = revealTracklist;
   document.querySelectorAll("#search,#category-filter,#condition-filter,#price-filter").forEach(element => element.addEventListener("input", () => { state.visibleCount = 80; renderCatalogue(); }));
   document.querySelectorAll('input[name="delivery"]').forEach(element => element.onchange = () => { document.querySelector("#neighbourhood-row").hidden = element.value !== "shipping" || !element.checked; renderCart(); });
   document.querySelector("#copy-order").onclick = copyOrder;
@@ -257,22 +294,33 @@ function setup() {
   document.querySelector("#admin-add").onclick = () => { document.querySelector("#admin-dialog").close(); openEditor(); };
   document.querySelector("#admin-logout").onclick = async () => { await fetch("/api/admin/logout", { method:"POST" }); state.admin = false; document.querySelector("#admin-tools").hidden = true; renderFeatured(); renderCatalogue(); };
   document.querySelector("#editor-form").addEventListener("submit", saveEditor);
-  const updateRoomJourney = () => {
-    const entrance = document.querySelector("#entrance");
-    const bounds = entrance.getBoundingClientRect();
-    const journey = Math.min(Math.max(-bounds.top / Math.max(1, entrance.offsetHeight - window.innerHeight), 0), .9999);
-    const room = document.querySelector("#room");
-    // The camera is painted inside the fixed viewport; never transform the sticky
-    // room container itself, which would expose a blank area below it on mobile.
-    room.style.transform = "none";
-    // The WebGL path owns the active shelf. This is only a fallback for a
-    // browser without WebGL, where the photo sequence remains available.
-    if (room.classList.contains("webgl-unavailable")) setRoomStep(Math.min(3, Math.floor(journey * 4)));
+  const updateJewelJourney = () => {
+    const wrapper = document.querySelector("#scroll-wrapper");
+    const sticky = document.querySelector("#sticky-viewport");
+    const hero = document.querySelector("#hero-album");
+    const inner = document.querySelector("#hero-card-inner");
+    const grid = document.querySelector("#album-grid");
+    const copy = document.querySelector(".entrance-copy");
+    const note = document.querySelector(".scroll-note");
+    const travel = Math.max(1, wrapper.offsetHeight - window.innerHeight);
+    const progress = Math.min(Math.max(-wrapper.getBoundingClientRect().top / travel, 0), 1);
+    const zoom = Math.min(progress / .58, 1);
+    const flip = Math.min(Math.max((progress - .62) / .25, 0), 1);
+    const target = Math.min(window.innerWidth * .88, window.innerHeight * .78);
+    const scale = 1 + Math.max(0, target / Math.max(hero.offsetWidth, 1) - 1) * zoom;
+    hero.style.transform = `translate(-50%, -50%) scale(${scale})`;
+    inner.style.transform = `rotateY(${flip * 180}deg)`;
+    grid.style.opacity = String(1 - zoom);
+    grid.style.transform = `scale(${1 - zoom * .18})`;
+    copy.style.opacity = String(1 - zoom);
+    copy.style.transform = `translateY(${zoom * -24}px)`;
+    note.style.opacity = String(1 - zoom * 1.5);
+    sticky.classList.toggle("shop-revealed", flip > .7);
     document.querySelector(".topbar").classList.toggle("scrolled", window.scrollY > 50);
   };
-  window.addEventListener("scroll", updateRoomJourney, { passive:true });
-  window.addEventListener("maison:room-stop", event => setRoomStep(event.detail.index));
-  updateRoomJourney();
+  window.addEventListener("scroll", updateJewelJourney, { passive:true });
+  window.addEventListener("resize", updateJewelJourney, { passive:true });
+  updateJewelJourney();
   updateAdminSession().then(() => { if (state.admin) document.querySelector("#admin-tools").hidden = false; loadInventory(); });
 }
 setup();
