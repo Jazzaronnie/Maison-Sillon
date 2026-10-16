@@ -1,0 +1,1 @@
+SELECT COUNT(*) AS imported_vinyl_listings, SUM(CASE WHEN is_hidden = 0 AND status = 'available' AND quantity > 0 THEN 1 ELSE 0 END) AS available_vinyls, SUM(CASE WHEN status = 'sold' THEN 1 ELSE 0 END) AS sold_vinyls, SUM(is_hidden) AS hidden_vinyls FROM releases WHERE listing_key LIKE 'vinyl-20261016-%';

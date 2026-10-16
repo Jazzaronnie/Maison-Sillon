@@ -1,6 +1,6 @@
 /* Database records determine visibility; the saved catalogue supplies cover art. */
 (function(root){
-  const endpoint=location.protocol==='file:'||['localhost','127.0.0.1'].includes(location.hostname)
+  const endpoint=location.protocol==='file:'
     ?'https://maison-sillon.justun978.workers.dev/api/inventory?max=2000':'/api/inventory?max=2000';
   const isSold=r=>['sold','vendu'].includes(String(r.status).toLowerCase())||Number(r.quantity)===0;
   const isAvailable=r=>r.status==='available'&&Number(r.quantity)>0&&!Number(r.is_hidden);
@@ -8,7 +8,8 @@
     const stored=new Map(cached.map(r=>[r.listing_key,r]));
     return live.filter(r=>r.listing_key&&!Number(r.is_hidden)&&!/\bcass(?:ette)?\b|8[-\s]?(?:trk|track)/i.test(r.format||'')).map(row=>{
       const previous=stored.get(row.listing_key);
-      return {...previous,...row,cover:row.custom_image_url||previous?.cover||row.discogs_image_url||null};
+      const details=String(previous?.release_id??'')===String(row.release_id??'')?{}:{catalog_number:null,discogs_country:null};
+      return {...previous,...details,...row,cover:row.custom_image_url||previous?.cover||row.discogs_image_url||null};
     });
   }
   async function refresh(cached){
