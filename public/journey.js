@@ -5,6 +5,10 @@
   const state={zoom:0,flip:0,cards:0,plunge:0,scale:1,blend:0,sceneFade:0};
   let openingY=null;
   let timeline=null,ready=false,mediaQuery=matchMedia('(prefers-reduced-motion: reduce)');
+  function positionCatalogue(){
+    const catalogue=q('#catalogue');
+    catalogue.style.transform=`translateY(${-Math.max(0,catalogue.offsetTop-scrollY)}px)`;
+  }
   function render(){
     if(!ready||document.body.classList.contains('journey-static'))return;
     const w=innerWidth,h=innerHeight,mobile=w<=650;
@@ -36,15 +40,16 @@
     });
     const scene=q('.stage'),catalogue=q('#catalogue');
     scene.style.opacity=1-state.sceneFade;
+    scene.style.pointerEvents=state.sceneFade>=.999?'none':'auto';
     q('.back').inert=state.flip<.9999||state.plunge>.001;
     q('.front').inert=state.flip>.001;
     scene.dataset.phase=state.blend>.99?'catalogue':state.plunge>.001?'dive':state.flip>.99?'selections':state.flip>.001?'flip':'grid';
     catalogue.style.opacity=state.blend;
-    const end=q('#catalogue').offsetTop;
     // The real catalogue occupies the last viewport of the runway. Compensation
     // holds it in the same visual position during the dissolve and is zero at
-    // handoff: no clone, no reparenting, no jump to a second copy of the UI.
-    catalogue.style.transform=`translateY(${-Math.max(0,end-scrollY)}px)`;
+    // handoff. A short CSS scroll buffer holds this finished view before reverse
+    // scrolling enters the animation again: no clone or jump to a second UI.
+    positionCatalogue();
     catalogue.inert=state.blend<.999;
     catalogue.style.pointerEvents=catalogue.inert?'none':'auto';
     catalogue.style.willChange=state.blend===1?'auto':'transform,opacity';
@@ -121,6 +126,13 @@
     const target=q('#catalogue').offsetTop;
     window.scrollTo({top:target??q('#catalogue').offsetTop,behavior:mediaQuery.matches?'instant':'smooth'});
   }
+  // The timeline has stopped in the buffer; keep its catalogue handoff aligned
+  // on ordinary scrolls too, in both directions.
+  let scrollFrame=0;
+  addEventListener('scroll',()=>{
+    if(scrollFrame||!ready||document.body.classList.contains('journey-static'))return;
+    scrollFrame=requestAnimationFrame(()=>{scrollFrame=0;positionCatalogue()});
+  },{passive:true});
   let resizeTimer;addEventListener('resize',()=>{render();clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{if(ready)setup()},120)});
   mediaQuery.addEventListener('change',setup);
   window.MaisonJourney={setup,redraw:render,goToCatalogue};
