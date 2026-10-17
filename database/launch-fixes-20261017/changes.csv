@@ -1,0 +1,18 @@
+Artist,Album,Listing key,Old price,New price,Old quantity,New quantity,Hidden,Reason
+Eminem,The Eminem Show,1734171-ZRhNKeUxGaS0,56,8,1,1,0,Apply requested round-2 price
+Coro De Monjes Del Monasterio De Santo Domingo De Silos,Las Mejores Obras Del Canto Gregoriano,5186137-Z1KlTF8yKGvt,49,8,1,1,0,Apply requested round-2 price
+Grand Orchestre International,Hymnes Nationaux,6062247-p9LYdWjoDLt1,27,8,1,1,0,Apply requested round-2 price
+Cher,Heart Of Stone,2583068-8bpyW6uFvn0-,26,15,1,1,0,Apply requested round-2 price
+Gheorghe Zamfir,Love Songs,3759370-YFufE_He9eem,22,8,1,1,0,Apply requested round-2 price
+Edith Piaf,Mon Légionnaire,8594641-rEpqjBWZCqbl,18,6,1,1,0,Apply requested round-2 price
+Patricia Kaas,Mademoiselle Chante...,4335205-0Jt71eCadlad,22,22,1,1,1,Hide old duplicate Patricia Kaas; retain correct-CD $11 listing
+Céline Dion,Celine Dion,2558210-7ZUNR-RA_X4K,5,5,1,1,0,Replace vinyl reference with requested CD release; preserve current $5 price
+Poison (3),Flesh & Blood,1667102-AWochj0l3tP_,5,5,1,1,0,Replace vinyl reference with requested CD release; preserve current $5 price
+Alain Barriere*,Alain Barriere,vinyl-20261016-306aa6d5d1ac4b4066ca,2,2,1,2,0,Group matching vinyl copies; preserve remaining stock; use lower listed price
+Alain Barriere*,Alain Barriere,vinyl-20261016-772251a86f4ac17628de,4,4,1,0,1,Archive extra vinyl row after grouping stock
+Frank Sinatra,Frank Sinatra's Greatest Hits,vinyl-20261016-a81b2a91c58069ba8b89,5,5,0,0,0,Group matching vinyl copies; preserve remaining stock; use lower listed price
+Frank Sinatra,Frank Sinatra's Greatest Hits,vinyl-20261016-6669122750f731fab2da,10,10,0,0,1,Archive extra vinyl row after grouping stock
+Georges Moustaki,Georges Moustaki,vinyl-20261016-c726f0f35d4a3c31ffcf,2,2,1,1,0,Group matching vinyl copies; preserve remaining stock; use lower listed price
+Georges Moustaki,Georges Moustaki,vinyl-20261016-61f617e5903f061b3bf0,2,2,0,0,1,Archive extra vinyl row after grouping stock
+Les Classels,Les 20 Plus Grands Succès De Gilles Girard Et Les Super Classels,vinyl-20261016-0c355b883fd07ebb6f03,5,5,1,2,0,Group matching vinyl copies; preserve remaining stock; use lower listed price
+Les Classels,Les 20 Plus Grands Succès De Gilles Girard Et Les Super Classels,vinyl-20261016-b03546f9ed968dce2475,5,5,1,0,1,Archive extra vinyl row after grouping stock
