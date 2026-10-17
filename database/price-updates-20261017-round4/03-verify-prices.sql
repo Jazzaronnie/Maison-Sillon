@@ -1,0 +1,1 @@
+SELECT listing_key, artist, title, price_cad FROM releases WHERE listing_key IN ('10117754-sCXwP59yQuUP', '382937-wRR-a9HI2RJw', '3364-AC5Pj4pn0sgl', '10453265-h_dD9YkHF9-c', '7712193-ONgM1o0qoJuG', '4207554-8UgZ_H5-48lD', '11758482-Zj1h8LPxIzhu', '541619-fp_hneMwIxUy', '349133-Spc2DpB7mwwf', '8315499-X5dTLsCduqbw', '8544010-5fQUyLvb_aOY') ORDER BY artist, title;
