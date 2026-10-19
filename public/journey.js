@@ -93,19 +93,26 @@
     timeline=gsap.timeline({
       defaults:{ease:'none'},paused:true,onUpdate:render
     });
-    // Grid zoom -> 3D flip reveals selections directly on the case back.
+    // Three deliberate chapters: the cover gets a moment of focus, the
+    // selections get a second moment of focus, and only then does browsing
+    // continue into the catalogue.
     timeline.addLabel('grid',0)
-      .fromTo(state,{zoom:0},{zoom:1,duration:2,ease:'power1.inOut'},0)
-      .addLabel('flip',2.2).fromTo(state,{flip:0},{flip:1,duration:1.35,ease:'power1.inOut'},'flip')
-      .fromTo(state,{cards:0},{cards:1,duration:.9,ease:'power1.out'},3.5)
-      .addLabel('selections',4.4);
-    // Give the selections a brief reading pause, then let the whole finished
-    // stage leave naturally as the separate catalogue enters from below.
-    timeline.to(state,{cards:1,duration:1.6},'selections');
+      .fromTo(state,{zoom:0},{zoom:1,duration:2.6,ease:'power1.inOut'},0)
+      .addLabel('featured',2.6)
+      // A true hold on Diana Krall's cover before the next scroll flips it.
+      .to(state,{zoom:1,duration:1},'featured')
+      .addLabel('flip',3.6).fromTo(state,{flip:0},{flip:1,duration:1.7,ease:'power1.inOut'},'flip')
+      .fromTo(state,{cards:0},{cards:1,duration:1,ease:'power1.out'},5.3)
+      .addLabel('selections',6.3);
+    // Give today's selections a longer reading pause before the catalogue.
+    timeline.to(state,{cards:1,duration:2.3},'selections').addLabel('catalogue',8.6);
     // Build all tweens before attaching ScrollTrigger. Fixed from-values prevent
     // a rebuild at mid-scroll from capturing that frame as the new start state.
     ScrollTrigger.create({id:'maison-sillon-journey',animation:timeline,
       trigger:'#journey',start:'top top',end:()=>q('#journey').offsetTop+q('#journey').offsetHeight-(innerWidth<=1024?layoutHeight:innerHeight),scrub:.45,
+      // Rest at meaningful moments instead of letting a quick flick skip the
+      // hero cover or today's selections.
+      snap:{snapTo:'labels',delay:.12,duration:{min:.2,max:.55},ease:'power1.inOut'},
       onRefresh:self=>{timeline.progress(self.progress);render()},
       onLeave:render,onEnterBack:render});
     ScrollTrigger.refresh();synchronize();
