@@ -114,10 +114,12 @@ header{padding-inline:24px}header>.brand{flex:none}header>nav{margin-left:auto;g
 /* Availability belongs with format filters, separate from sorting. */
 .catalogue-filters{display:flex;align-items:center;justify-content:space-between;gap:12px 28px;margin-bottom:22px}.catalogue-filters .format-switch{margin-bottom:0}.sold-toggle{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:6px 0;border:0;background:none;font-size:12px;white-space:nowrap;color:var(--muted)}.toggle-track{position:relative;width:28px;height:16px;border:1px solid #a6a69b;border-radius:20px;flex:none;transition:background .15s,border-color .15s}.toggle-track:after{content:'';position:absolute;width:10px;height:10px;left:2px;top:2px;border-radius:50%;background:#929388;transition:transform .15s,background .15s}.sold-toggle[aria-pressed=true]{color:var(--red)}.sold-toggle[aria-pressed=true] .toggle-track{background:var(--red);border-color:var(--red)}.sold-toggle[aria-pressed=true] .toggle-track:after{background:#fff;transform:translateX(12px)}@media(max-width:650px){.catalogue-filters{flex-wrap:wrap;gap:4px 20px;margin-bottom:12px}.catalogue-filters .format-switch{flex:1 0 100%}.sold-toggle{font-size:12px}}
 
-/* Leave a short, still catalogue view before reverse scrolling re-enters the CD animation. */
-.motion-enabled #catalogue{margin-top:calc(-100svh + clamp(140px,32svh,280px))}
-/* Keep the phone's scroll cue on one line, clear of the floating selection button. */
+/* The catalogue is a separate scrolling section after the completed CD scene. */
+.motion-enabled #catalogue{margin-top:clamp(72px,12svh,120px);transform:none;opacity:1}
+#journey{overflow-anchor:none}
+/* A readable, single-line cue, with room for the phone's floating basket. */
+.journey-footer .scroll-note{max-width:none;width:auto;flex:none;white-space:nowrap;font-size:10px;line-height:1.4;text-align:left}
 @media(max-width:650px){
- .journey-footer{left:24px;right:94px;justify-content:flex-start}
- .journey-footer .scroll-note{white-space:nowrap;background:#eeeae3e8;padding:5px 7px;letter-spacing:1.2px}
+ .journey-footer{left:24px;right:94px;bottom:calc(24px + env(safe-area-inset-bottom));justify-content:flex-start}
+ .journey-footer .scroll-note{background:#eeeae3ed;padding:7px 9px;letter-spacing:1.1px}
 }
