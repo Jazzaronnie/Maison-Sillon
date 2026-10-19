@@ -3,7 +3,7 @@
   const q=s=>document.querySelector(s),all=s=>document.querySelectorAll(s);
   const clamp=(x)=>Math.max(0,Math.min(1,x));
   const state={zoom:0,flip:0,cards:0};
-  let openingY=null,introComplete=false;
+  let openingY=null,introComplete=false,landingGuard=false;
   let layoutWidth=innerWidth,layoutHeight=innerHeight;
   let timeline=null,ready=false,mediaQuery=matchMedia('(prefers-reduced-motion: reduce)');
   function render(){
@@ -125,24 +125,53 @@
   function completeIntroIfReached(){
     if(introComplete||!timeline||document.body.classList.contains('journey-static'))return;
     const catalogue=q('#catalogue'),before=catalogue.getBoundingClientRect().top;
-    // Wait until the catalogue reaches the top, so removing the completed intro
-    // can preserve the exact visible position without a jump or scroll lock.
-    if(before>0)return;
+    const phoneLanding=innerWidth<=650;
+    // On phones, finish at the end of the selection pause. The same swipe must
+    // land on Face B, rather than coast through another screen and past it.
+    if(phoneLanding?scrollY<timeline.scrollTrigger.end:before>0)return;
     introComplete=true;
     timeline.scrollTrigger?.kill();timeline.pause();
+    landingGuard=phoneLanding;
+    if(phoneLanding)armLandingRelease();
     document.body.classList.add('intro-complete');
     q('.stage').dataset.phase='complete';
-    window.scrollTo({top:Math.max(0,catalogue.offsetTop-before),left:scrollX,behavior:'instant'});
+    window.scrollTo({top:phoneLanding?0:Math.max(0,catalogue.offsetTop-before),left:scrollX,behavior:'instant'});
   }
+  // Consume only the remainder of the arrival gesture. A fresh touch, keyboard
+  // action or wheel gesture immediately restores ordinary catalogue scrolling.
+  let landingTimer=0;
+  function releaseLanding(){clearTimeout(landingTimer);landingGuard=false}
+  function armLandingRelease(){
+    clearTimeout(landingTimer);
+    // Also release after momentum settles for browser/assistive scrolling that
+    // does not send touch, pointer or keyboard events to the document.
+    landingTimer=setTimeout(releaseLanding,350);
+  }
+  document.addEventListener('pointerdown',releaseLanding,{capture:true,passive:true});
+  document.addEventListener('touchstart',releaseLanding,{capture:true,passive:true});
+  document.addEventListener('keydown',releaseLanding,{capture:true});
+  let lastWheelAt=-Infinity;
+  addEventListener('wheel',()=>{
+    const now=performance.now();
+    if(now-lastWheelAt>180)releaseLanding();
+    lastWheelAt=now;
+  },{passive:true});
   let completionFrame=0;
   addEventListener('scroll',()=>{
+    if(landingGuard){
+      if(scrollY!==0){
+        armLandingRelease();
+        window.scrollTo({top:0,left:scrollX,behavior:'instant'});
+      }
+      return;
+    }
     if(introComplete||completionFrame)return;
     completionFrame=requestAnimationFrame(()=>{completionFrame=0;completeIntroIfReached()});
   },{passive:true});
   function restartIntro(event){
     event.preventDefault();
     if(completionFrame){cancelAnimationFrame(completionFrame);completionFrame=0}
-    introComplete=false;
+    introComplete=false;releaseLanding();
     document.body.classList.remove('intro-complete');
     history.replaceState(history.state,'',location.pathname+location.search);
     window.scrollTo({top:0,left:0,behavior:'instant'});
