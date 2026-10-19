@@ -3,11 +3,11 @@
   const q=s=>document.querySelector(s),all=s=>document.querySelectorAll(s);
   const clamp=(x)=>Math.max(0,Math.min(1,x));
   const state={zoom:0,flip:0,cards:0};
-  let openingY=null;
+  let openingY=null,introComplete=false;
   let layoutWidth=innerWidth,layoutHeight=innerHeight;
   let timeline=null,ready=false,mediaQuery=matchMedia('(prefers-reduced-motion: reduce)');
   function render(){
-    if(!ready||document.body.classList.contains('journey-static'))return;
+    if(!ready||introComplete||document.body.classList.contains('journey-static'))return;
     const w=innerWidth,mobile=w<=650,h=w<=1024?layoutHeight:innerHeight;
     const base=mobile?w*.41:Math.min(w*.41,h*.34,340);
     const zoomed=mobile?Math.min(w*.90,h*.53):Math.min(w*.58,h*.78,Math.max(240,h-146));
@@ -48,6 +48,7 @@
     q('.back').inert=false;q('.front').inert=true;
   }
   function setup(){
+    if(introComplete)return;
     const firstSetup=!ready;
     // A phone keyboard or collapsing address bar must not resize the scroll runway.
     // A real width change (including rotation) still recalculates the composition.
@@ -60,7 +61,7 @@
     document.body.classList.remove('journey-static');document.body.classList.add('motion-enabled');
     gsap.registerPlugin(ScrollTrigger);
     if(innerWidth<=1024){
-      q('#journey').style.height=`${layoutHeight*5.4}px`;
+      q('#journey').style.height=`${layoutHeight*4.4}px`;
       q('.stage').style.height=`${layoutHeight}px`;
     }else{
       q('#journey').style.removeProperty('height');q('.stage').style.removeProperty('height');
@@ -94,9 +95,9 @@
       .addLabel('flip',2.2).fromTo(state,{flip:0},{flip:1,duration:1.35,ease:'power1.inOut'},'flip')
       .fromTo(state,{cards:0},{cards:1,duration:.9,ease:'power1.out'},3.5)
       .addLabel('selections',4.4);
-    // Give the selections a longer reading pause, then let the whole finished
+    // Give the selections a brief reading pause, then let the whole finished
     // stage leave naturally as the separate catalogue enters from below.
-    timeline.to(state,{cards:1,duration:2.4},'selections');
+    timeline.to(state,{cards:1,duration:1.6},'selections');
     // Build all tweens before attaching ScrollTrigger. Fixed from-values prevent
     // a rebuild at mid-scroll from capturing that frame as the new start state.
     ScrollTrigger.create({id:'maison-sillon-journey',animation:timeline,
@@ -104,6 +105,7 @@
       onRefresh:self=>{timeline.progress(self.progress);render()},
       onLeave:render,onEnterBack:render});
     ScrollTrigger.refresh();synchronize();
+    requestAnimationFrame(completeIntroIfReached);
   }
   function synchronize(){
     if(!timeline?.scrollTrigger)return;
@@ -120,6 +122,33 @@
     const target=q('#catalogue').offsetTop;
     window.scrollTo({top:target??q('#catalogue').offsetTop,behavior:mediaQuery.matches?'instant':'smooth'});
   }
+  function completeIntroIfReached(){
+    if(introComplete||!timeline||document.body.classList.contains('journey-static'))return;
+    const catalogue=q('#catalogue'),before=catalogue.getBoundingClientRect().top;
+    // Wait until the catalogue reaches the top, so removing the completed intro
+    // can preserve the exact visible position without a jump or scroll lock.
+    if(before>0)return;
+    introComplete=true;
+    timeline.scrollTrigger?.kill();timeline.pause();
+    document.body.classList.add('intro-complete');
+    q('.stage').dataset.phase='complete';
+    window.scrollTo({top:Math.max(0,catalogue.offsetTop-before),left:scrollX,behavior:'instant'});
+  }
+  let completionFrame=0;
+  addEventListener('scroll',()=>{
+    if(introComplete||completionFrame)return;
+    completionFrame=requestAnimationFrame(()=>{completionFrame=0;completeIntroIfReached()});
+  },{passive:true});
+  function restartIntro(event){
+    event.preventDefault();
+    if(completionFrame){cancelAnimationFrame(completionFrame);completionFrame=0}
+    introComplete=false;
+    document.body.classList.remove('intro-complete');
+    history.replaceState(history.state,'',location.pathname+location.search);
+    window.scrollTo({top:0,left:0,behavior:'instant'});
+    setup();synchronize();
+  }
+  all('a.brand[href="#"]').forEach(link=>link.addEventListener('click',restartIntro));
   q('#search').addEventListener('keydown',event=>{
     if(event.key!=='Enter'||event.isComposing)return;
     event.preventDefault();
