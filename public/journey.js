@@ -4,6 +4,7 @@
   const clamp=(x)=>Math.max(0,Math.min(1,x));
   const state={zoom:0,flip:0,cards:0,plunge:0,scale:1,blend:0,sceneFade:0};
   let openingY=null;
+  let layoutWidth=innerWidth,layoutHeight=innerHeight;
   let timeline=null,ready=false,mediaQuery=matchMedia('(prefers-reduced-motion: reduce)');
   function positionCatalogue(){
     const catalogue=q('#catalogue');
@@ -11,7 +12,7 @@
   }
   function render(){
     if(!ready||document.body.classList.contains('journey-static'))return;
-    const w=innerWidth,h=innerHeight,mobile=w<=650;
+    const w=innerWidth,mobile=w<=650,h=w<=1024?layoutHeight:innerHeight;
     const base=mobile?w*.41:Math.min(w*.41,h*.34,340);
     const zoomed=mobile?Math.min(w*.90,h*.53):Math.min(w*.58,h*.78,Math.max(240,h-146));
     const size=base+(zoomed-base)*state.zoom;
@@ -57,18 +58,30 @@
   }
   function staticMode(){
     document.body.classList.remove('motion-enabled');document.body.classList.add('journey-static');
-    for(const selector of ['#catalogue','.stage','.case-position','.jewel','.intro','.wall'])q(selector).style.cssText='';q('.jewel').classList.add('settled');q('#catalogue').inert=false;
+    for(const selector of ['#journey','#catalogue','.stage','.case-position','.jewel','.intro','.wall'])q(selector).style.cssText='';q('.jewel').classList.add('settled');q('#catalogue').inert=false;
     all('.album-mini-card').forEach(c=>{c.inert=false;c.style.opacity=1;c.style.transform='none'});
     q('.back').inert=false;q('.front').inert=true;
   }
   function setup(){
     const firstSetup=!ready;
+    // A phone keyboard or collapsing address bar must not resize the scroll runway.
+    // A real width change (including rotation) still recalculates the composition.
+    if(firstSetup||innerWidth!==layoutWidth||innerWidth>1024)layoutHeight=innerHeight;
+    layoutWidth=innerWidth;
     if(firstSetup&&location.hash!=='#catalogue')window.scrollTo({top:0,left:0,behavior:'instant'});
     if(timeline){timeline.scrollTrigger?.kill();timeline.kill();timeline=null}
     ready=true;
     if(mediaQuery.matches||!window.gsap||!window.ScrollTrigger){staticMode();return}
     document.body.classList.remove('journey-static');document.body.classList.add('motion-enabled');
     gsap.registerPlugin(ScrollTrigger);
+    if(innerWidth<=1024){
+      q('#journey').style.height=`${layoutHeight*5.4}px`;
+      q('.stage').style.height=`${layoutHeight}px`;
+      q('#catalogue').style.marginTop=`${-layoutHeight+Math.max(140,Math.min(280,layoutHeight*.32))}px`;
+    }else{
+      q('#journey').style.removeProperty('height');q('.stage').style.removeProperty('height');
+      q('#catalogue').style.removeProperty('margin-top');
+    }
     openingY=null;
     q('.wall').style.top='';
     Object.assign(state,{zoom:0,flip:0,cards:0,plunge:0,scale:1,blend:0,sceneFade:0});
@@ -106,7 +119,7 @@
     // Build all tweens before attaching ScrollTrigger. Fixed from-values prevent
     // a rebuild at mid-scroll from capturing that frame as the new start state.
     ScrollTrigger.create({id:'maison-sillon-journey',animation:timeline,
-      trigger:'#journey',start:'top top',end:'bottom bottom',scrub:.22,
+      trigger:'#journey',start:'top top',end:()=>q('#journey').offsetTop+q('#journey').offsetHeight-(innerWidth<=1024?layoutHeight:innerHeight),scrub:.22,
       onRefresh:self=>{timeline.progress(self.progress);render()},
       onLeave:render,onEnterBack:render});
     ScrollTrigger.refresh();synchronize();
@@ -133,7 +146,40 @@
     if(scrollFrame||!ready||document.body.classList.contains('journey-static'))return;
     scrollFrame=requestAnimationFrame(()=>{scrollFrame=0;positionCatalogue()});
   },{passive:true});
-  let resizeTimer;addEventListener('resize',()=>{render();clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{if(ready)setup()},120)});
+  function finishCatalogueHandoff(){
+    if(!timeline||document.body.classList.contains('journey-static'))return;
+    const catalogue=q('#catalogue');
+    // In the dissolve/buffer the catalogue is translated above its document
+    // position. Native focus scrolling uses that document position and can send
+    // the visitor back into the animation. Remove the translation and advance
+    // scroll by the same distance BEFORE the browser focuses the field.
+    const offset=Math.max(0,catalogue.offsetTop-scrollY);
+    timeline.scrollTrigger?.getTween()?.progress(1);
+    timeline.progress(1);
+    window.scrollTo({top:scrollY+offset,left:scrollX,behavior:'instant'});
+    render();
+  }
+  const catalogueField=target=>target instanceof Element&&target.closest('#catalogue input, #catalogue select, #catalogue textarea');
+  document.addEventListener('pointerdown',event=>{
+    if(catalogueField(event.target)&&state.blend>=.999)finishCatalogueHandoff();
+  },{capture:true});
+  // Also cover keyboard navigation and focus initiated without a pointer event.
+  document.addEventListener('focusin',event=>{
+    if(catalogueField(event.target))finishCatalogueHandoff();
+  });
+  q('#search').addEventListener('keydown',event=>{
+    if(event.key!=='Enter'||event.isComposing)return;
+    event.preventDefault();
+    finishCatalogueHandoff();
+    // Search results already update as the visitor types. The keyboard's Search
+    // action should dismiss it, without navigating or clearing the query.
+    event.currentTarget.blur();
+  });
+  let resizeTimer;addEventListener('resize',()=>{
+    clearTimeout(resizeTimer);
+    if(innerWidth<=1024&&innerWidth===layoutWidth)return;
+    resizeTimer=setTimeout(()=>{if(ready)setup()},120);
+  });
   mediaQuery.addEventListener('change',setup);
   window.MaisonJourney={setup,redraw:render,goToCatalogue};
 })();
