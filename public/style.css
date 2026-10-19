@@ -128,3 +128,9 @@ header{padding-inline:24px}header>.brand{flex:none}header>nav{margin-left:auto;g
 .motion-enabled #journey{height:440svh}
 .intro-complete #journey{display:none}
 .intro-complete #catalogue{margin-top:0}
+
+/* Let the phone browser stop naturally at Face B, without fighting its momentum. */
+@media(max-width:650px){
+ html.intro-running{scroll-snap-type:y proximity;scroll-padding-top:0}
+ html.intro-running #catalogue{scroll-snap-align:start;scroll-snap-stop:always}
+}

@@ -3,7 +3,7 @@
   const q=s=>document.querySelector(s),all=s=>document.querySelectorAll(s);
   const clamp=(x)=>Math.max(0,Math.min(1,x));
   const state={zoom:0,flip:0,cards:0};
-  let openingY=null,introComplete=false,landingGuard=false;
+  let openingY=null,introComplete=false,handoffPending=false,touching=false,settleTimer=0;
   let layoutWidth=innerWidth,layoutHeight=innerHeight;
   let timeline=null,ready=false,mediaQuery=matchMedia('(prefers-reduced-motion: reduce)');
   function render(){
@@ -42,6 +42,7 @@
     q('.progress i').style.width=`${(timeline?.progress()||0)*100}%`;
   }
   function staticMode(){
+    document.documentElement.classList.remove('intro-running');
     document.body.classList.remove('motion-enabled');document.body.classList.add('journey-static');
     for(const selector of ['#journey','#catalogue','.stage','.case-position','.jewel','.intro','.wall'])q(selector).style.cssText='';q('.jewel').classList.add('settled');q('#catalogue').inert=false;
     all('.album-mini-card').forEach(c=>{c.inert=false;c.style.opacity=1;c.style.transform='none'});
@@ -58,6 +59,7 @@
     if(timeline){timeline.scrollTrigger?.kill();timeline.kill();timeline=null}
     ready=true;
     if(mediaQuery.matches||!window.gsap||!window.ScrollTrigger){staticMode();return}
+    document.documentElement.classList.add('intro-running');
     document.body.classList.remove('journey-static');document.body.classList.add('motion-enabled');
     gsap.registerPlugin(ScrollTrigger);
     if(innerWidth<=1024){
@@ -122,56 +124,50 @@
     const target=q('#catalogue').offsetTop;
     window.scrollTo({top:target??q('#catalogue').offsetTop,behavior:mediaQuery.matches?'instant':'smooth'});
   }
-  function completeIntroIfReached(){
-    if(introComplete||!timeline||document.body.classList.contains('journey-static'))return;
+  function finishIntro(){
+    if(!handoffPending||introComplete||touching)return;
+    clearTimeout(settleTimer);handoffPending=false;
     const catalogue=q('#catalogue'),before=catalogue.getBoundingClientRect().top;
     const phoneLanding=innerWidth<=650;
-    // On phones, finish at the end of the selection pause. The same swipe must
-    // land on Face B, rather than coast through another screen and past it.
-    if(phoneLanding?scrollY<timeline.scrollTrigger.end:before>0)return;
     introComplete=true;
     timeline.scrollTrigger?.kill();timeline.pause();
-    landingGuard=phoneLanding;
-    if(phoneLanding)armLandingRelease();
+    document.documentElement.classList.remove('intro-running');
     document.body.classList.add('intro-complete');
     q('.stage').dataset.phase='complete';
+    // Change document height only AFTER the native scroll has stopped. Repeated
+    // scrollTo calls during Android/WebView momentum cause visible flashing.
     window.scrollTo({top:phoneLanding?0:Math.max(0,catalogue.offsetTop-before),left:scrollX,behavior:'instant'});
   }
-  // Consume only the remainder of the arrival gesture. A fresh touch, keyboard
-  // action or wheel gesture immediately restores ordinary catalogue scrolling.
-  let landingTimer=0;
-  function releaseLanding(){clearTimeout(landingTimer);landingGuard=false}
-  function armLandingRelease(){
-    clearTimeout(landingTimer);
-    // Also release after momentum settles for browser/assistive scrolling that
-    // does not send touch, pointer or keyboard events to the document.
-    landingTimer=setTimeout(releaseLanding,350);
+  function scheduleHandoff(){
+    clearTimeout(settleTimer);
+    if(handoffPending&&!touching)settleTimer=setTimeout(finishIntro,220);
   }
-  document.addEventListener('pointerdown',releaseLanding,{capture:true,passive:true});
-  document.addEventListener('touchstart',releaseLanding,{capture:true,passive:true});
-  document.addEventListener('keydown',releaseLanding,{capture:true});
-  let lastWheelAt=-Infinity;
-  addEventListener('wheel',()=>{
-    const now=performance.now();
-    if(now-lastWheelAt>180)releaseLanding();
-    lastWheelAt=now;
-  },{passive:true});
+  function completeIntroIfReached(){
+    if(introComplete||!timeline||document.body.classList.contains('journey-static'))return;
+    const reached=innerWidth<=650?scrollY>=timeline.scrollTrigger.end:q('#catalogue').getBoundingClientRect().top<=0;
+    if(reached)handoffPending=true;
+    else handoffPending=false;
+    scheduleHandoff();
+  }
+  // Native scroll snapping catches Face B. Wait for finger release AND the end
+  // of momentum before removing the completed intro. Older browsers use quiet
+  // scroll events as a fallback; there is no counter-scroll loop or input lock.
+  document.addEventListener('touchstart',()=>{touching=true;clearTimeout(settleTimer)},{passive:true});
+  const endTouch=event=>{touching=event.touches.length>0;scheduleHandoff()};
+  document.addEventListener('touchend',endTouch,{passive:true});
+  document.addEventListener('touchcancel',endTouch,{passive:true});
+  document.addEventListener('scrollend',()=>{if(handoffPending&&!touching)finishIntro()},{passive:true});
   let completionFrame=0;
   addEventListener('scroll',()=>{
-    if(landingGuard){
-      if(scrollY!==0){
-        armLandingRelease();
-        window.scrollTo({top:0,left:scrollX,behavior:'instant'});
-      }
-      return;
-    }
-    if(introComplete||completionFrame)return;
+    if(introComplete)return;
+    clearTimeout(settleTimer);
+    if(completionFrame)return;
     completionFrame=requestAnimationFrame(()=>{completionFrame=0;completeIntroIfReached()});
   },{passive:true});
   function restartIntro(event){
     event.preventDefault();
     if(completionFrame){cancelAnimationFrame(completionFrame);completionFrame=0}
-    introComplete=false;releaseLanding();
+    introComplete=false;handoffPending=false;clearTimeout(settleTimer);
     document.body.classList.remove('intro-complete');
     history.replaceState(history.state,'',location.pathname+location.search);
     window.scrollTo({top:0,left:0,behavior:'instant'});
