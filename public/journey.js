@@ -6,6 +6,12 @@
   let openingY=null,introComplete=false,handoffPending=false,touching=false,settleTimer=0;
   let layoutWidth=innerWidth,layoutHeight=innerHeight;
   let timeline=null,ready=false,mediaQuery=matchMedia('(prefers-reduced-motion: reduce)');
+  // ScrollTrigger's built-in snap is only a suggestion: a fast trackpad flick
+  // can still jump over it. These gates make the two editorial moments real
+  // checkpoints. Each one absorbs the current scroll momentum and waits for a
+  // fresh scroll gesture before the visitor can continue.
+  let gates=[],nextGate=0,activeGate=-1,gateLocked=false,gateReadyAt=0;
+  let gateCorrection=false,gateBypassUntil=0;
   function render(){
     if(!ready||introComplete||document.body.classList.contains('journey-static'))return;
     const w=innerWidth,mobile=w<=650,h=w<=1024?layoutHeight:innerHeight;
@@ -57,6 +63,7 @@
     layoutWidth=innerWidth;
     if(firstSetup&&location.hash!=='#catalogue')window.scrollTo({top:0,left:0,behavior:'instant'});
     if(timeline){timeline.scrollTrigger?.kill();timeline.kill();timeline=null}
+    gates=[];nextGate=0;activeGate=-1;gateLocked=false;gateCorrection=false;
     ready=true;
     if(mediaQuery.matches||!window.gsap||!window.ScrollTrigger){staticMode();return}
     document.documentElement.classList.add('intro-running');
@@ -108,11 +115,15 @@
     timeline.to(state,{cards:1,duration:2.3},'selections').addLabel('catalogue',8.6);
     // Build all tweens before attaching ScrollTrigger. Fixed from-values prevent
     // a rebuild at mid-scroll from capturing that frame as the new start state.
+    gates=[
+      {name:'featured',progress:timeline.labels.featured/timeline.duration()},
+      {name:'selections',progress:timeline.labels.selections/timeline.duration()}
+    ];
     ScrollTrigger.create({id:'maison-sillon-journey',animation:timeline,
       trigger:'#journey',start:'top top',end:()=>q('#journey').offsetTop+q('#journey').offsetHeight-(innerWidth<=1024?layoutHeight:innerHeight),scrub:.45,
-      // Rest at meaningful moments instead of letting a quick flick skip the
-      // hero cover or today's selections.
-      snap:{snapTo:'labels',delay:.12,duration:{min:.2,max:.55},ease:'power1.inOut'},
+      // Do not use ScrollTrigger's snap here. It cannot prevent a large wheel
+      // or touch gesture from skipping an editorial stop.
+      onUpdate:handleJourneyProgress,
       onRefresh:self=>{timeline.progress(self.progress);render()},
       onLeave:render,onEnterBack:render});
     ScrollTrigger.refresh();synchronize();
@@ -125,12 +136,56 @@
     timeline.progress(timeline.scrollTrigger.progress);
     render();
   }
+  function immediateScroll(top){
+    const root=document.documentElement,previous=root.style.scrollBehavior;
+    root.style.scrollBehavior='auto';
+    window.scrollTo({top:Math.round(top),left:scrollX,behavior:'auto'});
+    requestAnimationFrame(()=>{root.style.scrollBehavior=previous});
+  }
+  function gateScrollPosition(index){
+    const trigger=timeline?.scrollTrigger,gate=gates[index];
+    if(!trigger||!gate)return scrollY;
+    return trigger.start+(trigger.end-trigger.start)*gate.progress;
+  }
+  function lockAtGate(index){
+    if(gateLocked||gateBypassUntil>performance.now())return;
+    activeGate=index;gateLocked=true;gateCorrection=true;
+    // Briefly block continuing momentum. A new touch/wheel action after this
+    // moment unlocks the next chapter.
+    gateReadyAt=performance.now()+520;
+    immediateScroll(gateScrollPosition(index));
+    requestAnimationFrame(()=>{
+      gateCorrection=false;
+      synchronize();
+    });
+  }
+  function unlockGate(){
+    if(!gateLocked)return;
+    nextGate=Math.max(nextGate,activeGate+1);
+    activeGate=-1;gateLocked=false;
+  }
+  function handleJourneyProgress(trigger){
+    if(gateCorrection||gateBypassUntil>performance.now())return;
+    // Going backwards remains natural and also rearms the appropriate stop.
+    if(trigger.direction<0){
+      if(trigger.progress<gates[0]?.progress-.025){nextGate=0;activeGate=-1;gateLocked=false}
+      else if(trigger.progress<gates[1]?.progress-.025&&nextGate>1){nextGate=1;activeGate=-1;gateLocked=false}
+      return;
+    }
+    if(!gateLocked&&nextGate<gates.length&&trigger.progress>=gates[nextGate].progress-.0005){
+      lockAtGate(nextGate);
+    }
+  }
   // Recheck after image/font layout and when returning from browser page cache.
   addEventListener('load',()=>{if(ready){window.ScrollTrigger?.refresh();synchronize()}});
   addEventListener('pageshow',()=>requestAnimationFrame(()=>{if(ready){window.ScrollTrigger?.refresh();synchronize()}}));
   document.fonts?.ready.then(()=>{if(ready){window.ScrollTrigger?.refresh();synchronize()}});
   function goToCatalogue(){
     const target=q('#catalogue').offsetTop;
+    // The explicit CTA is allowed to move straight to browsing; it is not a
+    // missed scroll gesture.
+    gateBypassUntil=performance.now()+1600;
+    unlockGate();
     window.scrollTo({top:target??q('#catalogue').offsetTop,behavior:mediaQuery.matches?'instant':'smooth'});
   }
   function finishIntro(){
@@ -158,10 +213,29 @@
     else handoffPending=false;
     scheduleHandoff();
   }
-  // Native scroll snapping catches Face B. Wait for finger release AND the end
-  // of momentum before removing the completed intro. Older browsers use quiet
-  // scroll events as a fallback; there is no counter-scroll loop or input lock.
-  document.addEventListener('touchstart',()=>{touching=true;clearTimeout(settleTimer)},{passive:true});
+  // Wait for finger release and the end of momentum before removing the
+  // completed introduction. The two gates above intentionally intercept only
+  // the transitions into the featured and selections chapters.
+  document.addEventListener('touchstart',()=>{
+    touching=true;clearTimeout(settleTimer);
+    // This is a fresh finger contact, not the swipe that reached the gate.
+    if(gateLocked&&performance.now()>=gateReadyAt)unlockGate();
+  },{passive:true});
+  // Once a swipe lands at a stop, prevent that same swipe's remaining momentum
+  // from travelling through the next chapter.
+  document.addEventListener('touchmove',event=>{
+    if(gateLocked&&gateBypassUntil<=performance.now()&&event.touches.length===1)event.preventDefault();
+  },{passive:false});
+  document.addEventListener('wheel',event=>{
+    if(!gateLocked||gateBypassUntil>performance.now()||event.deltaY<=0)return;
+    event.preventDefault();
+    // The first deliberate wheel after the short resting beat starts the next
+    // chapter, while the momentum from the original flick stays absorbed.
+    if(performance.now()>=gateReadyAt){
+      unlockGate();
+      immediateScroll(scrollY+Math.min(42,Math.max(12,Math.abs(event.deltaY)*.16)));
+    }
+  },{passive:false});
   const endTouch=event=>{touching=event.touches.length>0;scheduleHandoff()};
   document.addEventListener('touchend',endTouch,{passive:true});
   document.addEventListener('touchcancel',endTouch,{passive:true});
@@ -177,6 +251,7 @@
     event.preventDefault();
     if(completionFrame){cancelAnimationFrame(completionFrame);completionFrame=0}
     introComplete=false;handoffPending=false;clearTimeout(settleTimer);
+    gates=[];nextGate=0;activeGate=-1;gateLocked=false;gateCorrection=false;
     document.body.classList.remove('intro-complete');
     history.replaceState(history.state,'',location.pathname+location.search);
     window.scrollTo({top:0,left:0,behavior:'instant'});
