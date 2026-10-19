@@ -125,7 +125,7 @@ header{padding-inline:24px}header>.brand{flex:none}header>nav{margin-left:auto;g
 }
 
 /* Once browsing begins, remove the completed runway instead of replaying it on upward scroll. */
-.motion-enabled #journey{height:440svh}
+.motion-enabled #journey{height:560svh}
 .intro-complete #journey{display:none}
 .intro-complete #catalogue{margin-top:0}
 

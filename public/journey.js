@@ -63,7 +63,9 @@
     document.body.classList.remove('journey-static');document.body.classList.add('motion-enabled');
     gsap.registerPlugin(ScrollTrigger);
     if(innerWidth<=1024){
-      q('#journey').style.height=`${layoutHeight*4.4}px`;
+      // A longer runway lets visitors who flick-scroll still see Face B and
+      // today's selections before the catalogue takes over.
+      q('#journey').style.height=`${layoutHeight*5.6}px`;
       q('.stage').style.height=`${layoutHeight}px`;
     }else{
       q('#journey').style.removeProperty('height');q('.stage').style.removeProperty('height');
@@ -103,7 +105,7 @@
     // Build all tweens before attaching ScrollTrigger. Fixed from-values prevent
     // a rebuild at mid-scroll from capturing that frame as the new start state.
     ScrollTrigger.create({id:'maison-sillon-journey',animation:timeline,
-      trigger:'#journey',start:'top top',end:()=>q('#journey').offsetTop+q('#journey').offsetHeight-(innerWidth<=1024?layoutHeight:innerHeight),scrub:.22,
+      trigger:'#journey',start:'top top',end:()=>q('#journey').offsetTop+q('#journey').offsetHeight-(innerWidth<=1024?layoutHeight:innerHeight),scrub:.45,
       onRefresh:self=>{timeline.progress(self.progress);render()},
       onLeave:render,onEnterBack:render});
     ScrollTrigger.refresh();synchronize();
