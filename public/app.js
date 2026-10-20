@@ -41,9 +41,9 @@ function fulfillmentOptions(rows){
     ?[['pickup',fr?'Cueillette gratuite à Montréal':'Free Montréal pickup'],['local',fr?'Demander une livraison locale — 20 $':'Request local delivery — $20']]
     :[['pickup',fr?'Rencontre à Montréal':'Meetup in Montréal'],['shipping',fr?'Livraison à discuter':'Shipping to discuss']];
   $('#cart .delivery').innerHTML=`<legend translate="no">${fr?'Préférence de remise':'Pickup or delivery preference'}</legend>${options.map(([value,label])=>`<label class="delivery-choice"><input type="radio" name="fulfillment" value="${value}" ${value===fulfillment?'checked':''}><span translate="no">${label}</span></label>`).join('')}<p id="delivery-status" translate="no"></p>`;
-  const policy=hasVinyl?(vinylDeliveryNotice()+(fr?' Cette politique s’applique à toute sélection contenant un vinyle, y compris les CD.':' This policy applies to the entire selection when it includes vinyl, including CDs.')):'';
+  const policy=hasVinyl?vinylDeliveryNotice():'';
   const status=fulfillment==='local'
-    ?(fr?'Disponibilité à confirmer sur Messenger selon votre secteur. Les 20 $ ne sont pas inclus dans le total des albums.':'Availability must be confirmed on Messenger for your location. The $20 fee is not included in the album total.')
+    ?''
     :fulfillment==='shipping'?(fr?'Les possibilités et frais de livraison seront discutés sur Messenger.':'Shipping options and costs will be discussed on Messenger.'):(fr?'Le lieu et le moment de la rencontre seront convenus sur Messenger.':'The meeting place and time will be arranged on Messenger.');
   $('#delivery-status').textContent=[policy,status].filter(Boolean).join(' ');
 }
