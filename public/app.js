@@ -53,38 +53,7 @@ function updateCart(){cart=cartRows().map(r=>r.listing_key);fulfillmentOptions(c
 $('#cart .delivery').addEventListener('change',event=>{if(event.target.name!=='fulfillment')return;fulfillment=event.target.value;updateCart()});
 function openCart(){updateCart();$('#cart').showModal()}
 $$('.basket-trigger').forEach(b=>b.onclick=openCart);$$('dialog .close').forEach(b=>b.onclick=()=>b.closest('dialog').close());$$('dialog').forEach(d=>d.addEventListener('click',e=>{if(e.target===d){const b=d.getBoundingClientRect();if(e.clientX<b.left||e.clientX>b.right||e.clientY<b.top||e.clientY>b.bottom)d.close()}}));
-let detailId=null;
-function openDetail(id){
-  detailId=id;
-  const r=inventory.find(r=>r.listing_key===id);if(!r)return;
-  const vinyl=formatOf(r)==='vinyl',fr=language==='fr';
-  const notice=vinyl?(fr?'État et édition à confirmer.':'Condition and edition to confirm.'):(fr?'Disponibilité à confirmer.':'Availability to confirm.');
-  const imageNotice=r.cover_source==='owner'?(fr?'Photo de l’exemplaire.':'Photo of the copy.'):(fr?'Pochette illustrative.':'Illustrative artwork.');
-  $('#detail-content').innerHTML=`<div class="detail-sheet">
-    <div class="detail-header">${cover(r)}<div class="detail-identity">
-      <p class="eyebrow" translate="no">${formatLabel(r)}${r.release_year?' · '+r.release_year:''}</p>
-      <h2 translate="no">${esc(r.title)}</h2>
-      <p class="artist" translate="no">${esc(displayArtist(r.artist))}</p>
-    </div></div>
-    <div class="detail-purchase"><div class="detail-price" translate="no">${money(r.price_cad)} <small>CAD</small></div>
-      <button id="add" class="primary" ${cart.includes(id)||!isAvailable(r)?'disabled':''}>${isSold(r)?'Vendu':!isAvailable(r)?'Indisponible':cart.includes(id)?'Déjà dans votre sélection':'Ajouter à ma sélection ↗'}</button>
-    </div>
-    <dl class="detail-specs">
-      <div class="spec"><dt>Média</dt><dd>${esc(r.media_condition)}</dd></div>
-      <div class="spec"><dt>Pochette</dt><dd>${esc(r.sleeve_condition||'Not graded')}</dd></div>
-    </dl>
-    <p class="detail-short-note" translate="no">${notice} ${imageNotice}</p>
-    ${vinyl?`<p class="vinyl-delivery-note" translate="no">${fr?'Cueillette gratuite à Montréal · Aucune expédition postale. Livraison locale : 20 $, sur demande et après confirmation.':'Free Montréal pickup · No postal shipping. Local delivery: $20, on request and subject to confirmation.'}</p>`:''}
-    <details class="detail-extra"><summary translate="no">${fr?'Plus de détails':'More details'}</summary>
-      <p class="cart-help" translate="no">${esc(labels[r.category]||r.category)} · ${esc(r.format)}</p>
-      <dl>${releaseDetails(r)}</dl>
-      ${r.notes?`<p class="cart-help">${esc(r.notes)}</p>`:''}
-    </details>
-  </div>`;
-  $('#add').onclick=()=>{addToCart(id);openDetail(id)};
-  if(!$('#detail').open){$('#detail').showModal();$('#detail').scrollTop=0}
-  translateTree($('#detail'));
-}
+let detailId=null;function openDetail(id){detailId=id;const r=inventory.find(r=>r.listing_key===id);if(!r)return;$('#detail-content').innerHTML=`<div class="detail-layout">${cover(r)}<div><p class="eyebrow">${esc(labels[r.category]||r.category)} / ${esc(r.format)}</p><h2 translate="no">${esc(r.title)}</h2><p class="artist" translate="no">${esc(displayArtist(r.artist))}</p><dl><div class="spec"><dt>${formatOf(r)==='vinyl'?'Année (référence)':'Année'}</dt><dd>${r.release_year||'Non renseignée'}</dd></div><div class="spec"><dt>Média</dt><dd>${esc(r.media_condition)}</dd></div><div class="spec"><dt>Pochette</dt><dd>${esc(r.sleeve_condition||'Not graded')}</dd></div>${releaseDetails(r)}</dl>${formatOf(r)==='vinyl'?'<p class="edition-reference-note">Référence pour l’album ; le pressage exact de cet exemplaire reste à confirmer.</p>':''}${formatOf(r)==='vinyl'?'<p class="cart-help">L’état des vinyles n’a pas été vérifié individuellement. À confirmer avec le vendeur avant la remise.</p>':''}${formatOf(r)==='vinyl'?`<p class="vinyl-delivery-note" translate="no">${vinylDeliveryNotice()}</p>`:''}${r.notes?`<p class="cart-help">${esc(r.notes)}</p>`:''}<div class="detail-price">${money(r.price_cad)}</div><button id="add" class="primary" ${cart.includes(id)||!isAvailable(r)?'disabled':''}>${isSold(r)?'Vendu':!isAvailable(r)?'Indisponible':cart.includes(id)?'Déjà dans votre sélection':'Ajouter à ma sélection ↗'}</button><p class="image-note">${r.cover_source==='owner'?'Photo de l’exemplaire. Prix en dollars canadiens. État et contenu à confirmer avec le vendeur.':'Prix en dollars canadiens. Disponibilité à confirmer avec le vendeur. La pochette peut illustrer une autre édition.'}</p></div></div>`;$('#add').onclick=()=>{addToCart(id);openDetail(id)};if(!$('#detail').open)$('#detail').showModal();translateTree($('#detail'))}
 function addToCart(id){const r=inventory.find(r=>r.listing_key===id);if(!r||!isAvailable(r)||cart.includes(id))return;cart.push(id);updateCart();render()}
 function setCategory(c,scroll=false){selectedCategory=c;limit=48;$$('.filter').forEach(b=>b.classList.toggle('active',b.dataset.cat===c));render();if(scroll)goToCatalogue()}
 function render(){const q=$('#search').value.toLocaleLowerCase(),cond=$('#condition').value,min=priceFromPosition($('#price-min').value),max=priceFromPosition($('#price-max').value);let rows=inventory.filter(r=>(!hideSold||!isSold(r))&&(!selectedFormat||formatOf(r)===selectedFormat)&&(!selectedCategory||r.category===selectedCategory)&&(!cond||r.media_condition===cond)&&r.price_cad>=min&&r.price_cad<=max&&`${r.artist} ${r.title}`.toLocaleLowerCase().includes(q));const sort=$('#sort').value;rows.sort((a,b)=>sort==='low'?a.price_cad-b.price_cad:sort==='high'?b.price_cad-a.price_cad:a.artist.localeCompare(b.artist,language)||a.title.localeCompare(b.title,language));$('#result-count').textContent=`${rows.length.toLocaleString('fr-CA')} albums`;$('#vinyl-condition-note').hidden=selectedFormat!=='vinyl';$('#grid').innerHTML=rows.slice(0,limit).map(r=>`<article class="card ${isSold(r)?'is-sold':''}"><button class="card-open" data-id="${esc(r.listing_key)}" aria-label="Voir ${esc(r.title)} de ${esc(displayArtist(r.artist))}">${cover(r)}<h3 translate="no">${esc(r.title)}</h3><p class="artist" translate="no">${esc(displayArtist(r.artist))}</p><span class="format-label" translate="no">${formatLabel(r)}</span></button>${formatOf(r)==='vinyl'?`<p class="vinyl-delivery-tag" translate="no">${language==='fr'?'Cueillette à Montréal · Aucune expédition postale':'Montréal pickup · No postal shipping'}</p>`:''}<div class="card-bottom"><span>${money(r.price_cad)}</span><div class="card-purchase"><span class="condition-tag ${formatOf(r)==='vinyl'?'ungraded-tag':''}" title="${esc(language==='fr'?(conditionFrench[r.media_condition]||r.media_condition):r.media_condition)}" aria-label="${language==='en'?'Media condition':'État du média'} : ${esc(r.media_condition)}">${esc(shortCondition(r.media_condition))}</span><button class="quick-add" data-add="${esc(r.listing_key)}" ${!isAvailable(r)||cart.includes(r.listing_key)?'disabled':''}>${isSold(r)?'Vendu':!isAvailable(r)?'Indisponible':cart.includes(r.listing_key)?'Ajouté ✓':'Ajouter'}</button></div></div></article>`).join('')||'<p class="empty">Aucun album pour cette recherche. Essayez un autre titre ou élargissez vos filtres.</p>';$$('.card-open').forEach(b=>b.onclick=()=>openDetail(b.dataset.id));$$('[data-add]').forEach(b=>b.onclick=()=>addToCart(b.dataset.add));translateTree($('#grid'));$('#more').hidden=rows.length<=limit;}
