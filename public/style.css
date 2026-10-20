@@ -119,6 +119,23 @@ header{padding-inline:24px}header>.brand{flex:none}header>nav{margin-left:auto;g
 #journey{overflow-anchor:none}
 .vinyl-delivery-tag{font-size:10px;line-height:1.5;color:var(--muted);margin:0 0 10px}
 .vinyl-delivery-note{font-size:12px;line-height:1.6;padding:12px 14px;border-left:2px solid var(--red);background:var(--paper);margin:16px 0}
+#detail{width:min(540px,calc(100vw - 24px));padding:32px 24px 22px;max-height:calc(100svh - 24px)}
+.detail-sheet{min-width:0;overflow-wrap:anywhere}
+.detail-header{display:grid;grid-template-columns:110px minmax(0,1fr);gap:18px;align-items:center}
+.detail-header>.cover{width:100%;aspect-ratio:1;contain:size}
+.detail-header>.cover img{object-fit:contain}
+.detail-identity h2{font:400 25px/1.15 Georgia,serif;margin:8px 0;overflow-wrap:anywhere}
+.detail-identity .eyebrow{font-size:10px;letter-spacing:1px;margin:0}
+.detail-identity .artist{font-size:13px;line-height:1.4;margin:0}
+.detail-purchase{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center;margin:20px 0 16px}
+.detail-purchase .detail-price{margin:0;white-space:nowrap;font-size:24px}
+.detail-price small{font-size:10px;color:var(--muted)}
+.detail-purchase .primary{margin:0;padding:14px 10px;min-height:44px}
+.detail-specs{margin:0}
+.detail-short-note{font-size:11px;line-height:1.5;color:var(--muted);margin:12px 0}
+.detail-extra{border-top:1px solid var(--line);padding-top:12px;margin-top:14px}
+.detail-extra summary{font-size:12px;cursor:pointer;padding:4px 0}
+@media(max-width:650px){#detail{padding:32px 18px 18px}.detail-header{grid-template-columns:82px minmax(0,1fr);gap:14px}.detail-identity h2{font-size:21px}.detail-identity .artist{font-size:12px}.detail-purchase{gap:10px;margin:16px 0 10px}.detail-purchase .detail-price{font-size:21px}.detail-purchase .primary{font-size:11px}.detail-specs .spec{padding:8px 0;line-height:1.4}.detail-sheet .vinyl-delivery-note{font-size:11px;line-height:1.5;margin:10px 0;padding:10px 12px}}
 /* A readable, single-line cue, with room for the phone's floating basket. */
 .journey-footer .scroll-note{max-width:none;width:auto;flex:none;white-space:nowrap;font-size:10px;line-height:1.4;text-align:left}
 @media(max-width:650px){
