@@ -10,7 +10,7 @@
   let gates=[],gateBypassUntil=0;
   let chapter=0,chapterTween=null,lastWheelAt=-Infinity,touchStartY=0,touchConsumed=false;
   function controlsIntro(){
-    return ready&&timeline&&!introComplete&&!mediaQuery.matches&&!document.body.classList.contains('journey-static')&&performance.now()>=gateBypassUntil&&!document.querySelector('dialog[open]');
+    return ready&&timeline?.scrollTrigger&&Number.isFinite(timeline.scrollTrigger.end)&&!introComplete&&(chapter<3||chapterTween)&&!mediaQuery.matches&&!document.body.classList.contains('journey-static')&&performance.now()>=gateBypassUntil&&!document.querySelector('dialog[open]');
   }
   function advanceChapter(direction){
     if(!controlsIntro()||chapterTween)return;
@@ -18,11 +18,17 @@
     if(next===chapter)return;
     chapter=next;
     const trigger=timeline.scrollTrigger;
-    const target=chapter===0?trigger.start:chapter===3?trigger.end:gateScrollPosition(chapter-1);
+    // The catalogue has its own padding/layout offset after the runway; using
+    // trigger.end alone leaves the visitor on the back cover indefinitely.
+    const target=chapter===0?trigger.start:chapter===3?q('#catalogue').offsetTop:gateScrollPosition(chapter-1);
     const position={y:scrollY};
     chapterTween=gsap.to(position,{y:target,duration:chapter===3?1:1.25,ease:'power2.inOut',onUpdate:()=>{
       immediateScroll(position.y);synchronize();
-    },onComplete:()=>{chapterTween=null;completeIntroIfReached()}});
+    },onComplete:()=>{
+      chapterTween=null;
+      if(chapter===3){handoffPending=true;scheduleHandoff()}
+      else completeIntroIfReached();
+    }});
   }
   function render(){
     if(!ready||introComplete||document.body.classList.contains('journey-static'))return;
@@ -80,6 +86,10 @@
     ready=true;
     if(mediaQuery.matches||!window.gsap||!window.ScrollTrigger){staticMode();return}
     document.documentElement.classList.add('intro-running');
+    // Native CSS scroll snapping fights the frame-by-frame chapter movement
+    // and can pull every animation frame back to the opening position.
+    document.documentElement.style.scrollSnapType='none';
+    document.documentElement.style.scrollBehavior='auto';
     document.body.classList.remove('journey-static');document.body.classList.add('motion-enabled');
     gsap.registerPlugin(ScrollTrigger);
     if(innerWidth<=1024){
@@ -149,10 +159,7 @@
     render();
   }
   function immediateScroll(top){
-    const root=document.documentElement,previous=root.style.scrollBehavior;
-    root.style.scrollBehavior='auto';
-    window.scrollTo({top:Math.round(top),left:scrollX,behavior:'auto'});
-    requestAnimationFrame(()=>{root.style.scrollBehavior=previous});
+    window.scrollTo({top:Math.round(top),left:scrollX,behavior:'instant'});
   }
   function gateScrollPosition(index){
     const trigger=timeline?.scrollTrigger,gate=gates[index];
