@@ -117,6 +117,8 @@ header{padding-inline:24px}header>.brand{flex:none}header>nav{margin-left:auto;g
 /* The catalogue is a separate scrolling section after the completed CD scene. */
 .motion-enabled #catalogue{margin-top:clamp(72px,12svh,120px);transform:none;opacity:1}
 #journey{overflow-anchor:none}
+.vinyl-delivery-tag{font-size:10px;line-height:1.5;color:var(--muted);margin:0 0 10px}
+.vinyl-delivery-note{font-size:12px;line-height:1.6;padding:12px 14px;border-left:2px solid var(--red);background:var(--paper);margin:16px 0}
 /* A readable, single-line cue, with room for the phone's floating basket. */
 .journey-footer .scroll-note{max-width:none;width:auto;flex:none;white-space:nowrap;font-size:10px;line-height:1.4;text-align:left}
 @media(max-width:650px){
