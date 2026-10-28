@@ -3,6 +3,7 @@ const conditionFrench={"Near Mint (NM or M-)": "Presque neuf (NM ou M-)", "Very 
 
 let language='fr';try{language=localStorage.getItem('ms-language')==='en'?'en':'fr'}catch{}
 Object.assign(translations,{'1. Copier mon panier':'1. Copy my cart','2. Voir l’annonce Facebook ↗':'2. View the Facebook ad ↗'});
+Object.assign(translations,{'Cloudflare Web Analytics mesure la fréquentation du site, notamment les pays de visite et les pages consultées.':'Cloudflare Web Analytics measures site traffic, including visitor countries and pages viewed.'});
 const reverseTranslations=Object.fromEntries(Object.entries(translations).map(([a,b])=>[b,a]));
 const conditionEnglish=Object.fromEntries(Object.entries(conditionFrench).map(([a,b])=>[b,a]));
 function translateText(value){const trim=value.trim();if(!trim)return value;let canonical=reverseTranslations[trim]||trim;let translated=language==='en'?(translations[canonical]||canonical):canonical;
