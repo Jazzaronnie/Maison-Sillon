@@ -2,6 +2,7 @@ const translations={"Masquer les vendus":"Hide sold items", "Prix": "Price", "Fo
 const conditionFrench={"Near Mint (NM or M-)": "Presque neuf (NM ou M-)", "Very Good Plus (VG+)": "Très bon état plus (VG+)", "Very Good (VG)": "Très bon état (VG)", "Mint (M)": "Neuf (M)", "Good Plus (G+)": "Bon état plus (G+)", "Good (G)": "Bon état (G)", "Fair (F)": "État moyen (F)", "Used — condition to confirm": "Usagé — état à confirmer", "Not graded": "Non évaluée"};
 
 let language='fr';try{language=localStorage.getItem('ms-language')==='en'?'en':'fr'}catch{}
+Object.assign(translations,{'1. Copier mon panier':'1. Copy my cart','2. Voir l’annonce Facebook ↗':'2. View the Facebook ad ↗'});
 const reverseTranslations=Object.fromEntries(Object.entries(translations).map(([a,b])=>[b,a]));
 const conditionEnglish=Object.fromEntries(Object.entries(conditionFrench).map(([a,b])=>[b,a]));
 function translateText(value){const trim=value.trim();if(!trim)return value;let canonical=reverseTranslations[trim]||trim;let translated=language==='en'?(translations[canonical]||canonical):canonical;
